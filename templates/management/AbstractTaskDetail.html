@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ task.title }}</h1>
+    <p>{{ task.task_description }}</p>
+    <p>{{ task.input_description }}</p>
+    <p>{{ task.output_description }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}

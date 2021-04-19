@@ -1,0 +1,9 @@
+{% extends 'index.html' %}
+
+{% block title %}Список посылок{% endblock %}
+
+{% block content %}
+    {% for solution in solutions %}
+        <p>{{ solution.language }}</p>
+    {% endfor %}
+{% endblock %}

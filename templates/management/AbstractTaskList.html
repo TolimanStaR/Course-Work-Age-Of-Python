@@ -1,0 +1,9 @@
+{% extends 'index.html' %}
+
+{% block title %}Список задач{% endblock %}
+
+{% block content %}
+    {% for task in object_list %}
+        <a href="{% url 'abstract_task_detail' pk=task.pk %}">{{ task.title }}</a>
+    {% endfor %}
+{% endblock %}

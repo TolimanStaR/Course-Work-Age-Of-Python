@@ -7,9 +7,9 @@
     <p>{{ task.task_description }}</p>
     <p>{{ task.input_description }}</p>
     <p>{{ task.output_description }}</p>
-    <form method="post">
-        {% csrf_token %}
+    <form method="post" enctype="multipart/form-data" action="{% url 'send' pk=task.pk %}">
         {{ form.as_p }}
-        <input type="submit" value="Submit">
+        {% csrf_token %}
+        <input type="submit" value="Отправить">
     </form>
 {% endblock %}

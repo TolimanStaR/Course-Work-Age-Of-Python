@@ -1,0 +1,11 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    Посылка №{{ solution.pk }}
+{% endblock %}
+
+{% block content %}
+    <pre style="font-size: 15px; border: solid;">
+        <div style="padding: 10px;">{{ code }}</div>
+    </pre>
+{% endblock %}

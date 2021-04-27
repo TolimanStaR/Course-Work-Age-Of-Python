@@ -1,5 +1,6 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, FormView, TemplateView
 
@@ -9,54 +10,61 @@ from .forms import SolutionForm
 
 # This classes are used for testing only:
 
-class AbstractTaskList(ListView):
-    template_name = 'management/AbstractTaskList.html'
+class TaskList(ListView):
     model = AbstractTask
-
-    queryset = AbstractTask.objects.all()
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+    template_name = 'management/AbstractTaskList.html'
 
 
-class AbstractTaskDetail(TemplateView):
+class TaskDetail(DetailView):
+    model = AbstractTask
     template_name = 'management/AbstractTaskDetail.html'
+    context_object_name = 'task'
 
     def get_context_data(self, **kwargs):
-        print(kwargs)
-        context = super(AbstractTaskDetail, self).get_context_data(**kwargs)
-        context['form'] = SolutionForm()
-        context['task'] = AbstractTask.objects.get(pk=kwargs['pk'])
+        context = super().get_context_data(**kwargs)
+        context['form'] = SolutionForm
         return context
 
 
-class AbstractTaskForm(FormView):
+class TaskSolutionSend(FormView, LoginRequiredMixin):
+    template_name = 'management/AbstractTaskDetail.html'
     form_class = SolutionForm
-
-    success_url = 'management/list'
 
     def form_valid(self, form):
         code_file = CodeFile.objects.create(
             file=form.cleaned_data['file'],
-            language=form.cleaned_data['language']
+            language=form.cleaned_data['language'],
+            code=form.cleaned_data['file'].read().decode('utf-8')
         )
         code_file.save()
-        new_solution = Solution.objects.create(
+        solution = Solution.objects.create(
+            task=AbstractTask.objects.get(pk=self.kwargs['pk']),
             code_file=code_file,
             author=self.request.user,
         )
-        new_solution.save()
-        return super(AbstractTaskForm, self).form_valid(form)
+        solution.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('abstract_task_view', args=())
+        return reverse('solution_list', kwargs=self.kwargs)
 
 
 class SolutionList(ListView):
     model = Solution
-    context_object_name = 'solutions'
     template_name = 'management/SolutionList.html'
+    context_object_name = 'solutions'
 
-    def get_queryset(self):
-        return Solution.objects.filter(author=self.request.user)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class SolutionDetail(DetailView):
+    model = Solution
+    template_name = 'management/SolutionDetail.html'
+    context_object_name = 'solution'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['code'] = Solution.objects.get(pk=self.kwargs['id']).code_file.code
+        return context

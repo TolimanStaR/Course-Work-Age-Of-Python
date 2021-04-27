@@ -3,7 +3,9 @@
 {% block title %}Список посылок{% endblock %}
 
 {% block content %}
-    {% for solution in solutions %}
-        <p>{{ solution.language }}</p>
+    <h4>Посылки</h4>
+    {% for solution in object_list %}
+        <p><a href="{% url 'solution_detail' pk=solution.task.pk id=solution.pk %}">{{ solution.created }}
+            ({{ solution.verdict }})</a></p>
     {% endfor %}
 {% endblock %}

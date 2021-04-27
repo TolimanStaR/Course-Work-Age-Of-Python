@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -21,11 +23,34 @@ class Language(models.TextChoices):
     GNU_CXX_14 = 'C++14', _('GNU G++ C++ 14')
     GNU_CXX_17 = 'C++17', _('GNU G++ C++ 17')
     GNU_CXX_20 = 'C++20', _('GNU G++ C++ 20')
+    PYTHON_2_7 = 'Python2', _('Python v2.7')
+    PYTHON_3_9 = 'Python3', _('Python v3.9.4')
+
+
+class Status(models.TextChoices):
+    WAIT_FOR_CHECK = 'WAIT', _('Waiting for check')
+    QUEUED = 'QUEUED', _('Queued')
+    IN_PROGRESS = 'IN PROGRESS', _('In progress')
+    CHECK_FAILED = 'FAILED', _('Check failed')
+    CHECK_SUCCESS = 'SUCCESS', _('Check success')
+
+
+class Verdict(models.TextChoices):
+    EMPTY_VERDICT = 'NO VERDICT', _('No verdict')
+    WRONG_FILE_FORMAT = 'WRONG FILE FORMAT', _('Wrong format of file')
+    FILE_TOO_BIG = 'FILE TOO BIG', _('File has too large size')
+    BUILD_FAILED = 'BUILD FAILED', _('Build failed')
+    RUNTIME_ERROR = 'RUNTIME ERROR', _('Runtime error')
+    TIME_LIMIT_ERROR = 'TIME LIMIT ERROR', _('Time limit error')
+    MEMORY_LIMIT_ERROR = 'MEMORY LIMIT ERROR', _('Memory limit error')
+    WRONG_ANSWER = 'WRONG ANSWER', _('Wrong answer')
+    CORRECT_SOLUTION = 'CORRECT SOLUTION', _('Correct solution')
 
 
 class CodeFile(models.Model):
     file = models.FileField(upload_to='code/%Y/%m/%d')
     language = models.TextField(choices=Language.choices)
+    code = models.TextField(default='')
 
 
 class AbstractTask(models.Model):
@@ -50,11 +75,21 @@ class AbstractTask(models.Model):
 
 
 class Test(models.Model):
-    task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE)
+    task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='tests')
     content = models.TextField()
     right_answer = models.TextField()
 
 
 class Solution(models.Model):
-    code_file = models.OneToOneField(CodeFile, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='solutions', default=None)
+    code_file = models.OneToOneField(CodeFile, on_delete=models.CASCADE, related_name='code_file')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solutions')
+
+    created = models.DateTimeField(default=datetime.now)
+
+    status = models.TextField(choices=Status.choices, default=Status.WAIT_FOR_CHECK)
+    verdict = models.TextField(choices=Verdict.choices, default=Verdict.EMPTY_VERDICT)
+    verdict_text = models.TextField(blank=True, default='Посылка не проверена')
+
+    class Meta:
+        ordering = ['-created', ]

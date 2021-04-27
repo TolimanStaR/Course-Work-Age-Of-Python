@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-nnp&4rq^33$6o%lwmvv%%th5bp3t$#to^5559p&of1gfx!#%t-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '192.168.0.1',
+    '0.0.0.0',
+    '127.0.0.1',
+    '*',
+]
 
 
 # Application definition
@@ -101,13 +107,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DEFAULT_FILE_STORAGE = 'django_hashedfilenamestorage.storage.HashedFilenameFileSystemStorage'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'ru-ru'
 
 USE_I18N = True
 
@@ -115,11 +120,14 @@ USE_L10N = True
 
 USE_TZ = True
 
+TIME_ZONE = 'Europe/Moscow'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media/'

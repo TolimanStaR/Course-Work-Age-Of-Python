@@ -64,6 +64,9 @@ class SolutionDetail(DetailView):
     template_name = 'management/SolutionDetail.html'
     context_object_name = 'solution'
 
+    def get_object(self, queryset=None):
+        return Solution.objects.get(pk=self.kwargs['id'])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['code'] = Solution.objects.get(pk=self.kwargs['id']).code_file.code

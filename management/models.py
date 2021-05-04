@@ -15,6 +15,17 @@ class TaskExecuteType(models.TextChoices):
     BUILD_AND_RUN = 'build && run', _('Build binary, then run it')
 
 
+class SolutionEventType(models.TextChoices):
+    USER_TASK_SOLUTION = 'USER_SOLUTION', _('User solution to task')
+    AUTHOR_TASK_VALIDATION = 'TASK_VALIDATION', _('Validation of authors task (all tests)')
+
+
+class TaskGradingSystem(models.TextChoices):
+    BINARY = 'BINARY', _('Accepted or failed')
+    BINARY_FOR_EACH_TEST = 'BINARY TEST', _('1 Point for each test')
+    N_POINTS_FOR_EACH_TEST = 'POINTS TEST', _('N points for each test')
+
+
 class Language(models.TextChoices):
     GNU_ASM = 'ASM', _('GNU Assembly Language')
     GNU_C99 = 'C99', _('GNU GCC C99')
@@ -44,6 +55,7 @@ class Verdict(models.TextChoices):
     TIME_LIMIT_ERROR = 'TIME LIMIT ERROR', _('Time limit error')
     MEMORY_LIMIT_ERROR = 'MEMORY LIMIT ERROR', _('Memory limit error')
     WRONG_ANSWER = 'WRONG ANSWER', _('Wrong answer')
+    PARTIAL_SOLUTION = 'PARTIAL SOLUTION', _('Partial solution')
     CORRECT_SOLUTION = 'CORRECT SOLUTION', _('Correct solution')
 
 
@@ -70,6 +82,8 @@ class AbstractTask(models.Model):
     task_execute_type = models.TextField(choices=TaskExecuteType.choices)
     solution_file = models.OneToOneField(CodeFile, on_delete=models.SET_NULL, null=True)
 
+    grading_system = models.TextField(choices=TaskGradingSystem.choices, default=TaskGradingSystem.BINARY)
+
     # class Meta:
     #     abstract = True
 
@@ -78,6 +92,7 @@ class Test(models.Model):
     task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='tests')
     content = models.TextField()
     right_answer = models.TextField()
+    max_points = models.IntegerField(default=1)
 
 
 class Solution(models.Model):
@@ -91,6 +106,10 @@ class Solution(models.Model):
     verdict_text = models.TextField(blank=True, default='Посылка не проверена')
 
     task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='solutions', default=None)
+    node = models.IntegerField(default=1)
+
+    event_type = models.TextField(choices=SolutionEventType.choices, default=SolutionEventType.USER_TASK_SOLUTION)
+    points = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-created', ]

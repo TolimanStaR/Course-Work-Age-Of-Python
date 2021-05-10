@@ -37,6 +37,8 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'account.apps.AccountConfig',
+    'main.apps.MainConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'management.apps.ManagementConfig',
-    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -118,7 +119,7 @@ DEFAULT_FILE_STORAGE = 'django_hashedfilenamestorage.storage.HashedFilenameFileS
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = 'ru-RU'
 
 USE_I18N = True
 
@@ -142,3 +143,15 @@ MEDIA_ROOT = 'media/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'olymprog@gmail.com'
+EMAIL_HOST_PASSWORD = 'anonimusman' + str(password)
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

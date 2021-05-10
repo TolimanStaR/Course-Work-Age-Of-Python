@@ -1,4 +1,4 @@
-{% extends 'index.html' %}
+{% extends 'management/index.html' %}
 
 {% block title %}{{ task.title }}{% endblock %}
 
@@ -24,6 +24,6 @@
             <input type="submit" value="Отправить">
         </form>
     {% else %}
-        Войдите, чтобы отправить решение
+        <a href="{% url 'login' %}?next={{ request.get_full_path }}">Войдите</a>, чтобы отправить решение
     {% endif %}
 {% endblock %}

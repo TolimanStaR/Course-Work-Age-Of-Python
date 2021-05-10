@@ -1,0 +1,7 @@
+{% extends 'profile_frame.html' %}
+
+{% block title %}{{ user_obj.username }}{% endblock %}
+
+{% block profile_content %}
+    <p>профиль пользователя {{ user_obj.username }}</p>
+{% endblock %}

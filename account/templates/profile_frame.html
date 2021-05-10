@@ -1,0 +1,11 @@
+{% extends 'index.html' %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    <a href="{% url 'profile' username=user_obj.username %}">Профиль</a>
+    <a href="">Редактировать аккаунт</a>
+    <a href="{% url 'password_change' %}">Сменить пароль</a>
+    {% block profile_content %}
+    {% endblock %}
+{% endblock %}

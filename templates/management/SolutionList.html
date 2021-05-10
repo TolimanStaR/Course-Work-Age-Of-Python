@@ -6,6 +6,6 @@
     <h4>Посылки</h4>
     {% for solution in object_list %}
         <p><a href="{% url 'solution_detail' pk=solution.task.pk id=solution.pk %}">{{ solution.created }}
-            ({{ solution.verdict }})</a></p>
+            ({{ solution.verdict }}, {{ solution.points }} points)</a></p>
     {% endfor %}
 {% endblock %}

@@ -10,7 +10,7 @@ class TaskAnswerType(models.TextChoices):
     VARIABLE_ANSWER = 'VA', _('Variable answer')
 
 
-class TaskExecuteType(models.TextChoices):
+class CodeExecuteType(models.TextChoices):
     JUST_RUN = 'run', _('Only run source')
     BUILD_AND_RUN = 'build && run', _('Build binary, then run it')
 
@@ -36,6 +36,7 @@ class Language(models.TextChoices):
     GNU_CXX_20 = 'C++20', _('GNU G++ C++ 20')
     PYTHON_2_7 = 'Python2', _('Python v2.7')
     PYTHON_3_9 = 'Python3', _('Python v3.9.4')
+    JAVA_8 = 'Java8', _('Java 8')
 
 
 class Status(models.TextChoices):
@@ -63,6 +64,7 @@ class CodeFile(models.Model):
     file = models.FileField(upload_to='code/%Y/%m/%d')
     language = models.TextField(choices=Language.choices)
     code = models.TextField(default='')
+    file_name = models.CharField(default='', max_length=100)
 
 
 class AbstractTask(models.Model):
@@ -79,10 +81,11 @@ class AbstractTask(models.Model):
     output_example = models.TextField()
 
     answer_type = models.TextField(choices=TaskAnswerType.choices)
-    task_execute_type = models.TextField(choices=TaskExecuteType.choices)
+    task_execute_type = models.TextField(choices=CodeExecuteType.choices)
     solution_file = models.OneToOneField(CodeFile, on_delete=models.SET_NULL, null=True)
 
     grading_system = models.TextField(choices=TaskGradingSystem.choices, default=TaskGradingSystem.BINARY)
+    is_validated = models.BooleanField(default=False)
 
     # class Meta:
     #     abstract = True
@@ -93,6 +96,9 @@ class Test(models.Model):
     content = models.TextField()
     right_answer = models.TextField()
     max_points = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ('id',)
 
 
 class Solution(models.Model):
@@ -112,4 +118,4 @@ class Solution(models.Model):
     points = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['-created', ]
+        ordering = ('-created',)

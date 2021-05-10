@@ -34,7 +34,8 @@ class TaskSolutionSend(FormView, LoginRequiredMixin):
         code_file = CodeFile.objects.create(
             file=form.cleaned_data['file'],
             language=form.cleaned_data['language'],
-            code=form.cleaned_data['file'].read().decode('utf-8')
+            code=form.cleaned_data['file'].read().decode('utf-8'),
+            file_name=form.cleaned_data['file'].name,
         )
         code_file.save()
         solution = Solution.objects.create(

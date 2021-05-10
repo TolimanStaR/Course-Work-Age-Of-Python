@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'management.apps.ManagementConfig',
+    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -84,17 +85,11 @@ password = os.getenv('COURSEWORK2_DB_PASSWORD')
 
 DATABASES = {
     'default': {
-
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-
         'NAME': 'age-of-python',
-
         'USER': 'postgres',
-
         'PASSWORD': f'{password}',
-
         'HOST': '185.139.70.166',
-
         'PORT': '5432',
     }
 }

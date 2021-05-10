@@ -4,12 +4,26 @@
 
 {% block content %}
     <h1>{{ task.title }}</h1>
-    <p>{{ task.task_description }}</p>
-    <p>{{ task.input_description }}</p>
-    <p>{{ task.output_description }}</p>
-    <form method="post" enctype="multipart/form-data" action="{% url 'send' pk=task.pk %}">
-        {{ form.as_p }}
-        {% csrf_token %}
-        <input type="submit" value="Отправить">
-    </form>
+    <p>{{ task.task_description|linebreaks }}</p>
+    <p>{{ task.input_description|linebreaks }}</p>
+    <p>{{ task.output_description|linebreaks }}</p>
+    <table style="border: 1px solid black; border-collapse: collapse;">
+        <tr>
+            <th style="border: 1px solid black;">Пример входных данных</th>
+            <th style="border: 1px solid black;">Пример вывода</th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid black;">{{ task.input_example|linebreaks }}</td>
+            <td style="border: 1px solid black;">{{ task.output_example|linebreaksbr }}</td>
+        </tr>
+    </table>
+    {% if user.is_authenticated %}
+        <form method="post" enctype="multipart/form-data" action="{% url 'send' pk=task.pk %}">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <input type="submit" value="Отправить">
+        </form>
+    {% else %}
+        Войдите, чтобы отправить решение
+    {% endif %}
 {% endblock %}

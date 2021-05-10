@@ -4,6 +4,6 @@
 
 {% block content %}
     {% for task in object_list %}
-        <a href="{% url 'task_detail' pk=task.pk %}">{{ task.title }}</a>
+        <p><a href="{% url 'task_detail' pk=task.pk %}">{{ task.title }}</a></p>
     {% endfor %}
 {% endblock %}

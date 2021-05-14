@@ -16,19 +16,25 @@ class Profile(DetailView):
 
 
 class UserRegister(TemplateView):
-    template_name = ''
+    template_name = 'registration/registration.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['form'] = UserRegistrationForm
+
         return context
 
 
 class UserRegisterFormHandle(FormView):
     form_class = UserRegistrationForm
-    template_name = ''
+    template_name = 'registration/registration.html'
 
     def form_valid(self, form):
-        pass
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.set_password(form.cleaned_data['password'])
+            new_user.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         pass

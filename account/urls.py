@@ -2,6 +2,15 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
+
+    path('registration/',
+         UserRegister.as_view(),
+         name='registration'),
+
+    path('registration/submit/',
+         UserRegisterFormHandle.as_view(),
+         name='registration_submit'),
+
     path('login/',
          auth_views.LoginView.as_view(),
          name='login'),

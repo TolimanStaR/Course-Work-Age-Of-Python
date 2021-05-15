@@ -1,0 +1,14 @@
+{% extends 'profile_frame.html' %}
+
+{% block title %}Друзья {{ user_obj.username }}{% endblock %}
+
+{% block profile_content %}
+    <div>
+        <h3>Друзья</h3>
+        {% for friend in object_list %}
+            <p><a href="{% url 'profile' username=friend.user.username %}">{{ friend.user.username }}</a></p>
+        {% empty %}
+            <p>друзей нет</p>
+        {% endfor %}
+    </div>
+{% endblock %}

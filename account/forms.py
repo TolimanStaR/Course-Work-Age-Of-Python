@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, UserProfile, FriendRequest
 
 
 class UserRegistrationForm(forms.ModelForm):
@@ -15,3 +15,39 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Пароли не совпадают')
         return cd['password2']
+
+
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+        )
+
+
+class UserProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = (
+            'status',
+            'profile_photo',
+            'profile_background'
+        )
+
+
+class FriendRequestForm(forms.Form):
+    pass
+
+
+class AcceptFriendRequestForm(forms.Form):
+    pass
+
+
+class DeclineFriendRequestForm(forms.Form):
+    pass
+
+
+class DeleteFriendForm(forms.Form):
+    pass

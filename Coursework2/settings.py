@@ -155,3 +155,5 @@ EMAIL_HOST_USER = 'olymprog@gmail.com'
 EMAIL_HOST_PASSWORD = 'anonimusman' + str(password)
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'

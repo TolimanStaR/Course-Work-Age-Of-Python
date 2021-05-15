@@ -31,6 +31,30 @@ urlpatterns = [
          Profile.as_view(),
          name='profile'),
 
+    path('profile/<str:username>/friends/',
+         FriendList.as_view(),
+         name='friends_list'),
+
+    path('profile/<str:username>/add_friend/',
+         FriendRequestFormHandle.as_view(),
+         name='add_friend'),
+
+    path('profile/<str:username>/accept_request/',
+         AcceptFriendRequest.as_view(),
+         name='accept_request'),
+
+    path('profile/<str:username>/decline_request/',
+         DeclineFriendRequest.as_view(),
+         name='decline_request'),
+
+    path('profile/<str:username>/remove_friend/',
+         RemoveFriend.as_view(),
+         name='remove_friend'),
+
+    path('profile/<str:username>/edit/',
+         EditProfile.as_view(),
+         name='edit_profile'),
+
     path('password_reset/',
          auth_views.PasswordResetView.as_view(),
          name='password_reset'),
@@ -46,4 +70,8 @@ urlpatterns = [
     path('reset/done',
          auth_views.PasswordResetCompleteView.as_view(),
          name='password_reset_complete'),
+
+    path('user_list/',
+         UserList.as_view(),
+         name='user_list'),
 ]

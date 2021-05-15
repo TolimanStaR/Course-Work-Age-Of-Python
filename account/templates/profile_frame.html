@@ -4,8 +4,12 @@
 
 {% block content %}
     <a href="{% url 'profile' username=user_obj.username %}">Профиль</a>
-    <a href="">Редактировать аккаунт</a>
-    <a href="{% url 'password_change' %}">Сменить пароль</a>
+    <a href="{% url  'friends_list' username=user_obj.username %}">Друзья</a>
+    {% if user == user_obj %}
+        <a href="">Заявки в друзья</a>
+        <a href="{% url 'edit_profile' username=user_obj.username %}">Редактировать аккаунт</a>
+        <a href="{% url 'password_change' %}">Сменить пароль</a>
+    {% endif %}
     {% block profile_content %}
     {% endblock %}
 {% endblock %}

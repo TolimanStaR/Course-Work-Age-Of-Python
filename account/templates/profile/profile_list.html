@@ -1,0 +1,11 @@
+{% extends 'index.html' %}
+
+{% block title %}Список пользователей{% endblock %}
+
+{% block content %}
+    <div>
+        {% for user_obj in object_list %}
+            <p><a href="{% url 'profile' username=user_obj.username %}">{{ user_obj.username }}</a></p>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -47,6 +47,10 @@ urlpatterns = [
          DeclineFriendRequest.as_view(),
          name='decline_request'),
 
+    path('profile/<str:username>/friend_requests/',
+         FriendRequestList.as_view(),
+         name='friend_requests_list'),
+
     path('profile/<str:username>/remove_friend/',
          RemoveFriend.as_view(),
          name='remove_friend'),

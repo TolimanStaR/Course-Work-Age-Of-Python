@@ -1,0 +1,12 @@
+{% extends 'profile_frame.html' %}
+
+{% block title %}Заявки в друзья{% endblock %}
+
+{% block profile_content %}
+    <div>
+        {% for request in incoming_requests %}
+            <p><a href="{% url 'profile' username=request.from_user.user.username %}">
+                Заявка от пользователя {{ request.from_user.user.username }}</a></p>
+        {% endfor %}
+    </div>
+{% endblock %}

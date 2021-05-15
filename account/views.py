@@ -146,11 +146,21 @@ class FriendList(ListView):
 
 
 class FriendRequestList(ListView):
+    template_name = 'profile/profile_friend_requests.html'
+    model = FriendRequest
+
+    def get_queryset(self):
+        user_profile = UserProfile.objects.get(
+            user=User.objects.get(username=self.kwargs['username']))
+        return FriendRequest.objects.filter(to_user=user_profile)
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         user_profile = UserProfile.objects.get(
-            user=User.objects.get(username=kwargs['username']))
+            user=User.objects.get(username=self.kwargs['username']))
         context['incoming_requests'] = FriendRequest.objects.filter(to_user=user_profile)
+        context['user_obj'] = User.objects.get(username=self.kwargs['username'])
+        return context
 
 
 def friend_list_requests(request):

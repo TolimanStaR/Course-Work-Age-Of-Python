@@ -6,7 +6,11 @@
     <a href="{% url 'profile' username=user_obj.username %}">Профиль</a>
     <a href="{% url  'friends_list' username=user_obj.username %}">Друзья</a>
     {% if user == user_obj %}
-        <a href="">Заявки в друзья</a>
+        <a href="{% url 'friend_requests_list' username=user_obj.username %}">Заявки в друзья
+            {% if user_obj.user_profile.incoming_friend_requests.count > 0 %}
+                [{{ user_obj.user_profile.incoming_friend_requests.count }}]
+            {% endif %}
+        </a>
         <a href="{% url 'edit_profile' username=user_obj.username %}">Редактировать аккаунт</a>
         <a href="{% url 'password_change' %}">Сменить пароль</a>
     {% endif %}

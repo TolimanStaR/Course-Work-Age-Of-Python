@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views.generic import DetailView, TemplateView, FormView, ListView
 from django.views.generic.base import TemplateResponseMixin
 from django.views import View
+from django.contrib import messages
 
 from .models import UserProfile, User, FriendRequest
 from .forms import UserRegistrationForm, UserEditForm, UserProfileEditForm, FriendRequestForm
@@ -192,10 +193,9 @@ class EditProfile(View, LoginRequiredMixin):
         if user_form.is_valid() & profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            # ok msg
+            messages.success(request, 'Данные обновлены')
         else:
-            pass
-            # message
+            messages.error(request, 'Ошибка при обновлении профиля')
         return HttpResponseRedirect(self.request.path_info)
 
 

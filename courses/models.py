@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
+from management.fields import OrderField
+
 
 class Channel(models.Model):
     owner = models.OneToOneField(to=User,
@@ -113,11 +115,17 @@ class Module(models.Model):
     # title of the module
 
     description = models.TextField(blank=True)
-
     # some information about module content
 
+    order = OrderField(blank=True, for_fields=['course'])
+
+    # just number of course
+
     def __str__(self):
-        return self.title
+        return f'модуль {self.order}: {self.title}'
+
+    class Meta:
+        ordering = ('order',)
 
 
 class ModuleDescriptionListElement(models.Model):
@@ -148,9 +156,10 @@ class CourseDescriptionBlock(models.Model):
     image_position = models.TextField(choices=CourseDescriptionBlockImagePosition.choices,
                                       default=CourseDescriptionBlockImagePosition.LEFT)
     created = models.DateTimeField(default=now, editable=False)
+    order = OrderField(blank=True, for_fields=['course'])
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('order',)
 
 
 class Content(models.Model):
@@ -179,6 +188,13 @@ class Content(models.Model):
 
     item = GenericForeignKey('content_type', 'object_id')
     # assign linked object
+
+    order = OrderField(blank=True, for_fields=['module'])
+
+    # order number of the content in module
+
+    class Meta:
+        ordering = ('order',)
 
 
 class ItemBase(models.Model):

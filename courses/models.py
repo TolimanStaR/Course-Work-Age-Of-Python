@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -149,3 +151,71 @@ class CourseDescriptionBlock(models.Model):
 
     class Meta:
         ordering = ('-created',)
+
+
+class Content(models.Model):
+    module = models.ForeignKey(to=Module,
+                               on_delete=models.CASCADE,
+                               related_name='content_list')
+    # related module
+
+    content_type = models.ForeignKey(to=ContentType,
+                                     on_delete=models.CASCADE,
+                                     limit_choices_to={
+                                         'model__in':
+                                             (
+                                                 'puretext',
+                                                 'pdf',
+                                                 'latex',
+                                                 'codelisting',
+                                                 'picture',
+                                                 'videolink',
+                                             )
+                                     })
+    # Type of content node
+
+    object_id = models.PositiveIntegerField()
+    # id of content related object
+
+    item = GenericForeignKey('content_type', 'object_id')
+    # assign linked object
+
+
+class ItemBase(models.Model):
+    owner = models.ForeignKey(to=User,
+                              on_delete=models.CASCADE,
+                              related_name='%(class)s_related_content')
+    # owner of course->module->content block
+
+    title = models.CharField(max_length=150)
+    # title of content node
+
+    created = models.DateTimeField(default=now, editable=False)
+    # date of object creation
+
+    uploaded = models.DateTimeField(auto_now=True)
+    # time of object uploading
+
+
+class PureText(ItemBase):
+    text = models.TextField(blank=True)
+
+
+class PDF(ItemBase):
+    file = models.FileField(upload_to='course_pdf_files/')
+
+
+class LaTeX(ItemBase):
+    file = models.FileField(upload_to='course_LaTeX_files/')
+
+
+class CodeListing(ItemBase):
+    code = models.TextField(blank=True)
+
+
+class Picture(ItemBase):
+    image = models.ImageField(upload_to='course_content_images/')
+
+
+class VideoLink(ItemBase):
+    url = models.URLField()

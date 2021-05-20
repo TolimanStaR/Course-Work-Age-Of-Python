@@ -45,10 +45,12 @@
         {% endif %}
     </p>
     <p>
-        {% if user_obj.channel %}
-            <a href="{% url 'channel' %}">Мой канал</a>
-        {% else %}
+        {% if user_obj == user and user_obj.channel %}
+            <a href="{% url 'my_channel' %}">Мой канал</a>
+        {% elif user_obj == user and not user_obj.channel %}
             <a href="{% url 'create_channel' %}">Создать канал</a>
+        {% elif user_obj != user and user_obj.channel %}
+            <a href="{% url 'channel' slug=user_obj.channel.slug %}">Канал пользователя {{ user_obj.username }}</a>
         {% endif %}
     </p>
 {% endblock %}

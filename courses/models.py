@@ -162,7 +162,7 @@ class CourseDescriptionBlock(models.Model):
     image_position = models.TextField(choices=CourseDescriptionBlockImagePosition.choices,
                                       default=CourseDescriptionBlockImagePosition.LEFT)
     created = models.DateTimeField(default=now, editable=False)
-    order = OrderField(blank=True, for_fields=['course'])
+    order = OrderField(blank=True, for_fields=['course'], default=1)
 
     class Meta:
         ordering = ('order',)
@@ -195,7 +195,7 @@ class Content(models.Model):
     item = GenericForeignKey('content_type', 'object_id')
     # assign linked object
 
-    order = OrderField(blank=True, for_fields=['module'])
+    order = OrderField(blank=True, for_fields=['module'], default=1)
 
     # order number of the content in module
 

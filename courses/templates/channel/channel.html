@@ -4,6 +4,9 @@
 
 {% block content %}
     <div>
-         <h3>Канал {{ channel.title }}</h3>
+        <h3>Канал {{ channel.title }}</h3>
+        {% if channel.owner == user %}
+            <a href="{% url 'update_channel' slug=channel.slug %}">Редактировать канал</a>
+        {% endif %}
     </div>
 {% endblock %}

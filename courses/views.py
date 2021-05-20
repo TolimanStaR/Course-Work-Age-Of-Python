@@ -1,11 +1,10 @@
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView, TemplateView
+from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView, TemplateView, ListView
 from django.contrib import messages
-
 
 from .models import *
 
@@ -25,9 +24,9 @@ class OwnerEditMixin(object):
     def __init__(self):
         self.request = None
 
-    def form_valid(self):
-        qs = super(OwnerEditMixin, self).form_valid()
-        return qs.filter(owner=self.request.user)
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super(OwnerEditMixin, self).form_valid(form)
 
 
 class ChannelView(DetailView):
@@ -49,26 +48,45 @@ class ChannelCreateView(TemplateView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['channel_form'] = ChannelForm
+        if self.request.user.is_authenticated:
+            if hasattr(self.request.user, 'channel'):
+                context['channel_form'] = ChannelForm(instance=Channel.objects.get(owner=self.request.user))
         return context
 
 
-class ChannelCreateFormHandle(FormView):
+class ChannelCreateFormHandle(FormView, OwnerEditMixin):
     template_name = 'channel/channel_create.html'
     model = Channel
+    form_class = ChannelForm
 
     def form_valid(self, form: forms.ModelForm):
-        print(form.cleaned_data)
+        form.instance.owner = self.request.user
+        form.save()
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('channel', kwargs=self.kwargs)
+        return reverse('my_channel', kwargs=self.kwargs)
 
 
 class ChannelUpdateView(UpdateView):
+    model = Channel
+    fields = ['title']
+    template_name = 'channel/channel_update.html'
+
+    def get_success_url(self):
+        messages.success(self.request, 'Настройки канала успешно обновлены')
+        return self.request.path_info
+
+
+class ChannelSubscribersListView(ListView):
     pass
 
 
-class ChannelUpdateFormHandle(FormView):
+class ChannelSubscriberDetailView(DetailView):
+    pass
+
+
+class ChannelCoursesListView(ListView):
     pass
 
 

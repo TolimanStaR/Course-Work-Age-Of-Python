@@ -1,8 +1,11 @@
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView, TemplateView
 from django.contrib import messages
+
 
 from .models import *
 
@@ -32,17 +35,16 @@ class ChannelView(DetailView):
     template_name = 'channel/channel.html'
 
     def get_object(self, queryset=None):
-        print(self.kwargs)
         if 'slug' in self.kwargs:
             return get_object_or_404(Channel, slug=self.kwargs['slug'])
         elif 'slug' not in self.kwargs and self.request.user.is_authenticated:
             return get_object_or_404(Channel, owner=self.request.user)
 
+        raise Http404
+
 
 class ChannelCreateView(TemplateView, LoginRequiredMixin):
     template_name = 'channel/channel_create.html'
-
-    # model = Channel
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,7 +56,8 @@ class ChannelCreateFormHandle(FormView):
     template_name = 'channel/channel_create.html'
     model = Channel
 
-    def form_valid(self, form):
+    def form_valid(self, form: forms.ModelForm):
+        print(form.cleaned_data)
         return super().form_valid(form)
 
     def get_success_url(self):

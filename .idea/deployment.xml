@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< Updated upstream
   <component name="PublishConfigData" autoUpload="Always" serverName="Age-of-python" remoteFilesAllowedToDisappearOnAutoupload="false">
+=======
+  <component name="PublishConfigData" autoUpload="Always" serverName="Age-of-python">
+>>>>>>> Stashed changes
     <serverData>
       <paths name="Age-of-python">
         <serverdata>

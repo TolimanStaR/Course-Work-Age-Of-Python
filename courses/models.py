@@ -98,8 +98,11 @@ class Course(models.Model):
     # preview image at the courses list
 
     main_picture = models.ImageField(upload_to='course_main_pictures/', blank=True)
-
     # picture at the course main page
+
+    students = models.ManyToManyField(to=User, related_name='courses', blank=True)
+
+    # query of students at the course
 
     class Meta:
         ordering = ('-created',)
@@ -125,7 +128,7 @@ class Module(models.Model):
     # just number of course
 
     def __str__(self):
-        return f'модуль {self.order}: {self.title}'
+        return f'Модуль {self.order}: {self.title}'
 
     class Meta:
         ordering = ('order',)

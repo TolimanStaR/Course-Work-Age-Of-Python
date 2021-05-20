@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Age-of-python" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Age-of-python">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/Projects/Course-Work-Age-Of-Python" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

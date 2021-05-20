@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="8433cfa0-52b4-4afb-b29b-25c63f6f92cd" name="Age-of-python">
+        <fileTransfer accessType="SFTP" host="185.139.70.166" port="22" sshConfigId="40728c3e-53d7-4292-b82f-904ce4cd7140" sshConfig="root@185.139.70.166:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

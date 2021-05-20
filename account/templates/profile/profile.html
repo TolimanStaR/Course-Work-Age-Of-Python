@@ -44,4 +44,11 @@
             {% endif %}
         {% endif %}
     </p>
+    <p>
+        {% if user_obj.channel %}
+            <a href="{% url 'channel' %}">Мой канал</a>
+        {% else %}
+            <a href="{% url 'create_channel' %}">Создать канал</a>
+        {% endif %}
+    </p>
 {% endblock %}

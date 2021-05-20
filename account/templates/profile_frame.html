@@ -4,6 +4,7 @@
 
 {% block content %}
     <a href="{% url 'profile' username=user_obj.username %}">Профиль</a>
+    <a href="">Подписки</a>
     <a href="{% url  'friends_list' username=user_obj.username %}">Друзья</a>
     {% if user == user_obj %}
         <a href="{% url 'friend_requests_list' username=user_obj.username %}">Заявки в друзья

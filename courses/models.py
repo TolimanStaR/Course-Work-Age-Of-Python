@@ -16,6 +16,9 @@ class Channel(models.Model):
     title = models.CharField(max_length=100)
     # title of the channel
 
+    slug = models.SlugField(unique=True, max_length=100, default='')
+    # unique link to channel
+
     background_color = models.CharField(max_length=10, blank=True)
     # background color of the channel main page
 

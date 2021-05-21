@@ -18,7 +18,8 @@ RUN pip3 install Pillow
 RUN pip3 install django_hashedfilenamestorage
 RUN pip3 install psycopg2-binary
 RUN COURSEWORK2_DB_PASSWORD="528491"
-RUN export COURSEWORK2_DB_PASSWORD
+RUN export COURSEWORK2_DB_PASSWORD=528491
+RUN echo COURSEWORK2_DB_PASSWORD=528491 >> /etc/environment
 
 EXPOSE 8000
 

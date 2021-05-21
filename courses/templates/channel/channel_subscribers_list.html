@@ -1,0 +1,13 @@
+{% extends 'channel/channel_control_panel_frame.html' %}
+
+{% block title %}Подписчики{% endblock %}
+
+{% block channel_content %}
+    <div>
+        {% for subscriber in object_list %}
+            <p><a href="">{{ subscriber.username }}</a></p>
+        {% empty %}
+            <p>На вашем канале нет подписчиков</p>
+        {% endfor %}
+    </div>
+{% endblock %}

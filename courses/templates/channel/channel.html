@@ -5,8 +5,28 @@
 {% block content %}
     <div>
         <h3>Канал {{ channel.title }}</h3>
+        <p>{{ channel.subscribers.count }} подписчиков</p>
+        {% if user.is_authenticated %}
+            {% if user != channel.owner %}
+                {% if user not in channel.subscribers.all %}
+                    <form action="{% url 'channel_subscribe' slug=channel.slug %}" method="post">
+                        {% csrf_token %}
+                        {{ subscribe_form.as_p }}
+                        <input type="submit" value="Подписаться">
+                    </form>
+                {% else %}
+                    <form action="{% url 'channel_delete_subscribe' slug=channel.slug username=user.username %}" method="post">
+                        {% csrf_token %}
+                        {{ delete_subscribe_form.as_p }}
+                        <input type="submit" value="Отписаться">
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            <p>Чтобы подписаться, <a href="{% url 'login' %}">авторизуйтесь</a></p>
+        {% endif %}
         {% if channel.owner == user %}
-            <a href="{% url 'update_channel' slug=channel.slug %}">Редактировать канал</a>
+            <a href="{% url 'update_channel' slug=channel.slug %}">Панель управления каналом</a>
         {% endif %}
     </div>
 {% endblock %}

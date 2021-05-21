@@ -18,3 +18,11 @@ class ChannelForm(forms.ModelForm):
             'owner_interview',
             'owner_photo',
         )
+
+
+class ChannelSubscribeForm(forms.Form):
+    pass
+
+
+class ChannelDeleteSubscribeForm(forms.Form):
+    pass

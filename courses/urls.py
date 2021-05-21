@@ -23,6 +23,18 @@ urlpatterns = [
     path('channel_edit/<slug:slug>/',
          ChannelUpdateView.as_view(),
          name='update_channel'),
+
+    path('channel/<slug:slug>/subscribers/',
+         ChannelSubscribersListView.as_view(),
+         name='channel_subscribers'),
+
+    path('channel/<slug:slug>/subscribe/',
+         ChannelSubscribeFormHandle.as_view(),
+         name='channel_subscribe'),
+
+    path('channel/<slug:slug>/subscribe_delete/<str:username>/',
+         ChannelDeleteSubscribeFormHandle.as_view(),
+         name='channel_delete_subscribe'),
     #
     # path('channel_update_confirm/',
     #      ChannelUpdateView.as_view(),

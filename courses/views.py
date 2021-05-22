@@ -76,7 +76,7 @@ class ChannelCreateFormHandle(FormView, OwnerEditMixin):
         return reverse('my_channel', kwargs=self.kwargs)
 
 
-class ChannelUpdateView(UpdateView):
+class ChannelUpdateView(UpdateView, LoginRequiredMixin):
     model = Channel
     fields = ['title',
               'slug',
@@ -113,7 +113,7 @@ class ChannelUpdateView(UpdateView):
         return context
 
 
-class ChannelSubscribersListView(ListView):
+class ChannelSubscribersListView(ListView, LoginRequiredMixin):
     template_name = 'channel/channel_subscribers_list.html'
     model = User
 
@@ -180,7 +180,7 @@ class ChannelDeleteSubscribeFormHandle(FormView):
         return super().form_valid(form)
 
 
-class ManageChannelSubscriber(DetailView):
+class ManageChannelSubscriber(DetailView, LoginRequiredMixin):
     template_name = 'channel/channel_subscriber_detail.html'
     model = User
 
@@ -197,7 +197,36 @@ class ManageChannelSubscriber(DetailView):
             raise Http404
 
 
-class ChannelCoursesListView(ListView):
+class ChannelCoursesListView(ListView, LoginRequiredMixin):
+    model = Course
+    template_name = ''
+
+    def get_queryset(self):
+        # courses = Course.objects.all()
+        # return courses.filter(owner=self.request.user,
+        #                       channel=Channel.objects.get(slug=self.kwargs['slug']))
+
+        channel = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        if channel.owner == self.request.user:
+            qs = Course.objects.all()
+            return qs.filter(owner=self.request.user)
+
+        raise Http404
+
+
+class CourseDetail(DetailView):
+    pass
+
+
+class CourseCreateView(TemplateView, LoginRequiredMixin):
+    pass
+
+
+class CourseCreateFormHandle(FormView):
+    pass
+
+
+class CourseUpdateView(UpdateView):
     pass
 
 

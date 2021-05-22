@@ -147,6 +147,7 @@ class ChannelSubscribeFormHandle(FormView):
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
             raise Http404
+
         channel = get_object_or_404(Channel, slug=self.kwargs['slug'])
         channel.subscribers.add(self.request.user)
         channel.save()
@@ -158,7 +159,11 @@ class ChannelDeleteSubscribeFormHandle(FormView):
     form_class = ChannelDeleteSubscribeForm
 
     def get_success_url(self):
-        return reverse('channel', kwargs={'slug': self.kwargs['slug']})
+        kwargs = {'slug': self.kwargs['slug']}
+        if self.request.user == Channel.objects.get(slug=self.kwargs['slug']).owner:
+            return reverse('channel_subscribers', kwargs=kwargs)
+        else:
+            return reverse('channel', kwargs=kwargs)
 
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
@@ -173,6 +178,23 @@ class ChannelDeleteSubscribeFormHandle(FormView):
                 raise Http404
         channel.save()
         return super().form_valid(form)
+
+
+class ManageChannelSubscriber(DetailView):
+    template_name = 'channel/channel_subscriber_detail.html'
+    model = User
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['channel'] = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        context['delete_subscriber_form'] = ChannelDeleteSubscribeForm
+        return context
+
+    def get_object(self, queryset=None):
+        try:
+            return get_object_or_404(User, username=self.kwargs['username'])
+        except KeyError:
+            raise Http404
 
 
 class ChannelCoursesListView(ListView):

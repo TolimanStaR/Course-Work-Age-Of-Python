@@ -28,6 +28,10 @@ urlpatterns = [
          ChannelSubscribersListView.as_view(),
          name='channel_subscribers'),
 
+    path('channel/<slug:slug>/subscribers/<str:username>/manage/',
+         ManageChannelSubscriber.as_view(),
+         name='channel_manage_subscriber'),
+
     path('channel/<slug:slug>/subscribe/',
          ChannelSubscribeFormHandle.as_view(),
          name='channel_subscribe'),

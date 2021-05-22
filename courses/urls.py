@@ -20,7 +20,7 @@ urlpatterns = [
          ChannelView.as_view(),
          name='my_channel'),
 
-    path('channel_edit/<slug:slug>/',
+    path('channel/<slug:slug>/update/',
          ChannelUpdateView.as_view(),
          name='update_channel'),
 
@@ -39,6 +39,26 @@ urlpatterns = [
     path('channel/<slug:slug>/subscribe_delete/<str:username>/',
          ChannelDeleteSubscribeFormHandle.as_view(),
          name='channel_delete_subscribe'),
+
+    path('channel/<slug:slug>/course_list_edit/',
+         ChannelCoursesListView.as_view(),
+         name='channel_course_list_edit'),
+
+    path('channel/<slug:slug>/course_create/',
+         CourseCreateView.as_view(),
+         name='create_course'),
+
+    path('channel/<slug:slug>/course_create_confirm/',
+         CourseCreateFormHandle.as_view(),
+         name='create_course_confirm'),
+
+    path('course/<slug:slug>/',
+         CourseDetail.as_view(),
+         name='course'),
+
+    path('course/<slug:slug>/update/',
+         CourseUpdateView.as_view(),
+         name='update_course'),
     #
     # path('channel_update_confirm/',
     #      ChannelUpdateView.as_view(),

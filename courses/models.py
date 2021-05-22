@@ -85,7 +85,7 @@ class Course(models.Model):
     title = models.CharField(max_length=150)
     # title of the course
 
-    slug = models.SlugField(unique=True, max_length=100, default=title)
+    slug = models.SlugField(unique=True, max_length=100, default='')
     # course unique identifier in url
 
     theme = models.TextField(choices=CourseThemes.choices, default=CourseThemes.ABSTRACT)

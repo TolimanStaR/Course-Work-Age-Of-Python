@@ -1,0 +1,15 @@
+{% extends 'channel/channel_control_panel_frame.html' %}
+
+{% block title %}Список курсов{% endblock %}
+
+{% block channel_content %}
+    <div>
+        {% for course in object_list %}
+            <p>Курс {{ course.title }} <a href="{% url 'course' slug=course.slug %}">Перейти к курсу</a>
+                <a href="{% url 'update_course' slug=course.slug %}">Управление курсом</a></p>
+        {% empty %}
+            <p>На канале пока что нет курсов</p>
+        {% endfor %}
+        <p><a href="{% url 'create_course' slug=channel.slug %}">Создать новый курс</a></p>
+    </div>
+{% endblock %}

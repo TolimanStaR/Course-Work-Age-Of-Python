@@ -1,0 +1,14 @@
+{% extends 'channel/channel_control_panel_frame.html' %}
+
+{% block title %}Новый курс{% endblock %}
+
+{% block channel_content %}
+    <div>
+        <h3>Заполните информацию о новом курсе</h3>
+        <form action="{% url 'create_course_confirm' slug=channel.slug %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ course_create_form.as_p }}
+            <input type="submit" value="Создать новый курс">
+        </form>
+    </div>
+{% endblock %}

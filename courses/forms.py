@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Channel
+from .models import *
 
 
 class ChannelForm(forms.ModelForm):
@@ -26,3 +26,16 @@ class ChannelSubscribeForm(forms.Form):
 
 class ChannelDeleteSubscribeForm(forms.Form):
     pass
+
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = (
+            'title',
+            'slug',
+            'theme',
+            'show_in_channel_page',
+            'preview_picture',
+            'main_picture',
+        )

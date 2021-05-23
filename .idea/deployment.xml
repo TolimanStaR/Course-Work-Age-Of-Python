@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-<<<<<<< Updated upstream
-  <component name="PublishConfigData" autoUpload="Always" serverName="Age-of-python" remoteFilesAllowedToDisappearOnAutoupload="false">
-=======
-  <component name="PublishConfigData" autoUpload="Always" serverName="Age-of-python">
->>>>>>> Stashed changes
+  <component name="PublishConfigData" autoUpload="Always" serverName="age-of-python">
     <serverData>
-      <paths name="Age-of-python">
+      <paths name="age-of-python">
         <serverdata>
           <mappings>
             <mapping deploy="/Projects/Course-Work-Age-Of-Python" local="$PROJECT_DIR$" web="/" />

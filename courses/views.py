@@ -76,7 +76,7 @@ class ChannelCreateFormHandle(FormView, OwnerEditMixin):
         return reverse('my_channel', kwargs=self.kwargs)
 
 
-class ChannelUpdateView(UpdateView):
+class ChannelUpdateView(UpdateView, LoginRequiredMixin):
     model = Channel
     fields = ['title',
               'slug',
@@ -113,7 +113,7 @@ class ChannelUpdateView(UpdateView):
         return context
 
 
-class ChannelSubscribersListView(ListView):
+class ChannelSubscribersListView(ListView, LoginRequiredMixin):
     template_name = 'channel/channel_subscribers_list.html'
     model = User
 
@@ -147,6 +147,7 @@ class ChannelSubscribeFormHandle(FormView):
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
             raise Http404
+
         channel = get_object_or_404(Channel, slug=self.kwargs['slug'])
         channel.subscribers.add(self.request.user)
         channel.save()
@@ -158,7 +159,11 @@ class ChannelDeleteSubscribeFormHandle(FormView):
     form_class = ChannelDeleteSubscribeForm
 
     def get_success_url(self):
-        return reverse('channel', kwargs={'slug': self.kwargs['slug']})
+        kwargs = {'slug': self.kwargs['slug']}
+        if self.request.user == Channel.objects.get(slug=self.kwargs['slug']).owner:
+            return reverse('channel_subscribers', kwargs=kwargs)
+        else:
+            return reverse('channel', kwargs=kwargs)
 
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
@@ -175,9 +180,118 @@ class ChannelDeleteSubscribeFormHandle(FormView):
         return super().form_valid(form)
 
 
-class ChannelCoursesListView(ListView):
-    pass
+class ManageChannelSubscriber(DetailView, LoginRequiredMixin):
+    template_name = 'channel/channel_subscriber_detail.html'
+    model = User
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['channel'] = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        context['delete_subscriber_form'] = ChannelDeleteSubscribeForm
+        return context
+
+    def get_object(self, queryset=None):
+        try:
+            return get_object_or_404(User, username=self.kwargs['username'])
+        except KeyError:
+            raise Http404
 
 
-class ChannelDeleteView(DeleteView):
-    pass
+class ChannelCoursesListView(ListView, LoginRequiredMixin):
+    model = Course
+    template_name = 'channel/channel_course_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['channel'] = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        return context
+
+    def get_queryset(self):
+        # courses = Course.objects.all()
+        # return courses.filter(owner=self.request.user,
+        #                       channel=Channel.objects.get(slug=self.kwargs['slug']))
+
+        channel = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        if channel.owner == self.request.user:
+            qs = Course.objects.all()
+            return qs.filter(owner=self.request.user)
+
+        raise Http404
+
+
+class CourseDetail(DetailView):  # Main page of the course
+    model = Course
+    template_name = 'course/course.html'
+    context_object_name = 'course'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Course, slug=self.kwargs['slug'])
+
+
+class CourseCreateView(TemplateView, LoginRequiredMixin):
+    template_name = 'channel/channel_course_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['channel'] = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        context['course_create_form'] = CourseForm
+        return context
+
+
+class CourseCreateFormHandle(FormView, LoginRequiredMixin):
+    template_name = 'channel/channel_course_create.html'
+    form_class = CourseForm
+
+    def form_valid(self, form):
+        channel = get_object_or_404(Channel, slug=self.kwargs['slug'])
+        if channel.owner == self.request.user:
+            form.instance.owner = self.request.user
+            form.instance.channel = channel
+            if form.is_valid():
+                form.save()
+                messages.success(self.request, f'Курс {form.cleaned_data["title"]} успешно создан')
+                return super().form_valid(form=form)
+
+            messages.error(self.request, 'Ошибка при заполнении формы')
+
+        raise Http404
+
+    def get_success_url(self):
+        return reverse('channel_course_list_edit', kwargs=self.kwargs)
+
+
+class CourseUpdateView(UpdateView, LoginRequiredMixin):
+    model = Course
+    template_name = 'course/course_update.html'
+    fields = (
+        'title',
+        'slug',
+        'theme',
+        'show_in_channel_page',
+        'preview_picture',
+        'main_picture',
+    )
+
+    def get_object(self, queryset=None):
+        try:
+            course = get_object_or_404(Course, slug=self.kwargs['slug'])
+            if course.owner == self.request.user:
+                return course
+            raise Http404
+        except TypeError:
+            raise Http404
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Данные о курсе успешно обновлены')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs['slug'])
+        return context
+
+    def get_success_url(self):
+        return self.request.path_info
+
+# class ChannelDeleteView(DeleteView):
+#     pass

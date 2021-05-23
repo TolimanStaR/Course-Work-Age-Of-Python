@@ -8,7 +8,7 @@
     <p><a href="{% url 'my_channel' %}">Вернуться на главную страницу канала</a></p>
     <a href="{% url 'update_channel' slug=channel.slug %}">Редактировать канал</a>
     <a href="{% url 'channel_subscribers' slug=channel.slug %}">Управление подписчиками</a>
-    <a href="">Управление курсами</a>
+    <a href="{% url 'channel_course_list_edit' slug=channel.slug %}">Управление курсами</a>
     <a href="">Управление блогом</a>
     {% block channel_content %}
     {% endblock %}

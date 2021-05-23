@@ -5,7 +5,9 @@
 {% block channel_content %}
     <div>
         {% for subscriber in object_list %}
-            <p><a href="">{{ subscriber.username }}</a></p>
+            <p>
+                <a href="{% url 'channel_manage_subscriber' slug=channel.slug username=subscriber.username %}">{{ subscriber.username }}</a>
+            </p>
         {% empty %}
             <p>На вашем канале нет подписчиков</p>
         {% endfor %}

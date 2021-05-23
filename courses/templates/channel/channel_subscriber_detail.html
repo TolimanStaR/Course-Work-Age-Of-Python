@@ -3,7 +3,12 @@
 {% block title %}Управление подписчиком{% endblock %}
 
 {% block channel_content %}
-<div>
-
-</div>
+    <div>
+        <p>Подписчик <a href="{% url 'profile' username=object.username %}">{{ object.username }}</a></p>
+        <form action="{% url 'channel_delete_subscribe' slug=channel.slug username=object.username %}" method="post">
+            {% csrf_token %}
+            {{ delete_subscriber_form.as_p }}
+            <input type="submit" value="Удалить подписчика">
+        </form>
+    </div>
 {% endblock %}

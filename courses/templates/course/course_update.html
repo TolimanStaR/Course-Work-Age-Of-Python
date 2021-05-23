@@ -1,0 +1,13 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Изменить курс{% endblock %}
+
+{% block course_content %}
+    <div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Сохранить">
+        </form>
+    </div>
+{% endblock %}

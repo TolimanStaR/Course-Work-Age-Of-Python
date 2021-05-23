@@ -91,7 +91,7 @@ class Course(models.Model):
     theme = models.TextField(choices=CourseThemes.choices, default=CourseThemes.ABSTRACT)
     # course theme / tag
 
-    show_in_channel_page = models.BooleanField(default=False)
+    show_course_in_channel_page = models.BooleanField(default=False)
     # should course be in channel main page
 
     created = models.DateTimeField(default=now, editable=False)

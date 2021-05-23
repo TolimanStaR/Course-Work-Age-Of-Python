@@ -3,6 +3,9 @@
   <component name="SshConfigs">
     <configs>
       <sshConfig authType="PASSWORD" host="185.139.70.166" id="40728c3e-53d7-4292-b82f-904ce4cd7140" port="22" nameFormat="DESCRIPTIVE" username="root" />
+      <sshConfig authType="PASSWORD" host="185.139.70.166" id="d17281d3-550a-47e9-92d6-8d05f02092f2" port="22" customName="age-of-python" nameFormat="CUSTOM" username="root">
+        <option name="customName" value="age-of-python" />
+      </sshConfig>
     </configs>
   </component>
 </project>

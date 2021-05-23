@@ -1,0 +1,14 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Редактировать информацию о курсе{% endblock %}
+
+{% block course_content %}
+    <div>
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ formset }}
+            {{ formset.management_form }}
+            <input type="submit" value="Сохранить настройки">
+        </form>
+    </div>
+{% endblock %}

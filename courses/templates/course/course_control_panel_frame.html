@@ -9,7 +9,8 @@
         <p><a href="{% url 'course' slug=course.slug %}">Вернуться на главную страницу курса</a></p>
         <p>
             <a href="{% url 'update_course' slug=course.slug %}">Изменить информацию о курсе</a>
-            <a href="">Управление блоками контента на главной странице</a>
+            <a href="{% url 'update_course_description' slug=course.slug %}">Управление блоками контента на главной
+                странице</a>
             <a href="">Управление студентами</a>
             <a href="">Управление модулями</a>
             <a href="">Управление задачами</a>

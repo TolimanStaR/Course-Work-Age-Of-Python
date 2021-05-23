@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.models import inlineformset_factory
 
 from .models import *
 
@@ -35,7 +36,21 @@ class CourseForm(forms.ModelForm):
             'title',
             'slug',
             'theme',
-            'show_in_channel_page',
+            'show_course_in_channel_page',
             'preview_picture',
             'main_picture',
         )
+
+
+CourseDescriptionBlockFormSet = inlineformset_factory(
+    parent_model=Course,
+    model=CourseDescriptionBlock,
+    fields=['title',
+            'subtitle',
+            'text',
+            'image',
+            'image_position'],
+    extra=2,
+    can_order=True,
+    can_delete=True,
+)

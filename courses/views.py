@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView, TemplateView, ListView
 from django.contrib import messages
+from django.views.generic.base import View, TemplateResponseMixin
 
 from .models import *
 
@@ -267,7 +268,7 @@ class CourseUpdateView(UpdateView, LoginRequiredMixin):
         'title',
         'slug',
         'theme',
-        'show_in_channel_page',
+        'show_course_in_channel_page',
         'preview_picture',
         'main_picture',
     )
@@ -293,5 +294,36 @@ class CourseUpdateView(UpdateView, LoginRequiredMixin):
     def get_success_url(self):
         return self.request.path_info
 
-# class ChannelDeleteView(DeleteView):
-#     pass
+
+class CourseDescriptionBlockUpdateView(TemplateView, TemplateResponseMixin, View):
+    course = None
+    template_name = 'course/course_update_description_blocks.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs['slug'])
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=self.kwargs['slug'])
+        print(self.course)
+        return super(CourseDescriptionBlockUpdateView, self).dispatch(request=request)
+
+    def get_formset(self, data=None):
+        return CourseDescriptionBlockFormSet(
+            instance=self.course,
+            data=data
+        )
+
+    def get(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        return self.render_to_response({'course': self.course, 'formset': formset})
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_formset(data=request.POST)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, 'Данные успешно сохранены')
+            return HttpResponseRedirect(reverse('update_course_description', kwargs={'slug': self.kwargs['slug']}))
+        messages.error(request, 'Ошибка при сохранении данных')
+        return self.render_to_response({'course': self.course, 'formset': formset})

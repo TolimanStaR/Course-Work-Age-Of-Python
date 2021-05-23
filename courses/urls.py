@@ -59,6 +59,10 @@ urlpatterns = [
     path('course/<slug:slug>/update/',
          CourseUpdateView.as_view(),
          name='update_course'),
+
+    path('course/<slug:slug>/update_description/',
+         CourseDescriptionBlockUpdateView.as_view(),
+         name='update_course_description'),
     #
     # path('channel_update_confirm/',
     #      ChannelUpdateView.as_view(),

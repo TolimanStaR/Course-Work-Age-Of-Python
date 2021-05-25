@@ -16,7 +16,7 @@ urlpatterns = [
          ChannelView.as_view(),
          name='channel'),
 
-    path('mychannel',
+    path('my_channel',
          ChannelView.as_view(),
          name='my_channel'),
 
@@ -63,8 +63,37 @@ urlpatterns = [
     path('course/<slug:slug>/update_description/',
          CourseDescriptionBlockUpdateView.as_view(),
          name='update_course_description'),
-    #
-    # path('channel_update_confirm/',
-    #      ChannelUpdateView.as_view(),
-    #      name='channel_update_confirm'),
+
+    path('course/<slug:slug>/students/',
+         CourseStudentsListView.as_view(),
+         name='course_students_list'),
+
+    path('course/<slug:slug>/students/<str:username>/',
+         CourseStudentDetailView.as_view(),
+         name='course_student_detail'),
+
+    path('course/<slug:slug>/join/',
+         CourseJoinFormHandle.as_view(),
+         name='join_course'),
+
+    path('course/<slug:slug>/students/<str:username>/delete/',
+         CourseDeleteStudentFormHandle.as_view(),
+         name='course_delete_student'),
+
+    path('course/<slug:slug>/module/create/',
+         CourseModuleCreateView.as_view(),
+         name='create_module'),
+
+    path('course/<slug:slug>/module/create/success/',
+         CourseModuleCreateFormHandle.as_view(),
+         name='create_module_success'),
+
+    path('course/<slug:slug>/module/<int:order>/update/',
+         CourseModuleUpdate.as_view(),
+         name='update_module'),
+
+    path('course/<slug:slug>/modules/',
+         CourseModuleList.as_view(),
+         name='module_list'),
+
 ]

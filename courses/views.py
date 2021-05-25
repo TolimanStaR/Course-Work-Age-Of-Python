@@ -228,14 +228,34 @@ class CourseDetail(DetailView):  # Main page of the course
     def get_object(self, queryset=None):
         return get_object_or_404(Course, slug=self.kwargs['slug'])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['course_join_form'] = CourseJoinForm
+        context['course_leave_form'] = CourseDeleteStudentForm
+        context['is_subscribed'] = False
+
+        obj = Course.objects.get(slug=self.kwargs.get('slug', None))
+        if self.request.user.is_authenticated:
+            sub_list = Student.objects.filter(
+                course=obj,
+                user=self.request.user,
+            )
+            if len(sub_list) > 0:
+                context['is_subscribed'] = True
+
+        return context
+
 
 class CourseCreateView(TemplateView, LoginRequiredMixin):
     template_name = 'channel/channel_course_create.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context['channel'] = get_object_or_404(Channel, slug=self.kwargs['slug'])
         context['course_create_form'] = CourseForm
+
         return context
 
 
@@ -306,24 +326,181 @@ class CourseDescriptionBlockUpdateView(TemplateView, TemplateResponseMixin, View
 
     def dispatch(self, request, *args, **kwargs):
         self.course = get_object_or_404(Course, slug=self.kwargs['slug'])
-        print(self.course)
         return super(CourseDescriptionBlockUpdateView, self).dispatch(request=request)
 
-    def get_formset(self, data=None):
+    def get_formset(self, *args):
         return CourseDescriptionBlockFormSet(
+            *args,
             instance=self.course,
-            data=data
         )
 
     def get(self, request, *args, **kwargs):
+        if self.request.user != Course.objects.get(slug=self.kwargs.get('slug', None)).owner:
+            raise Http404
         formset = self.get_formset()
         return self.render_to_response({'course': self.course, 'formset': formset})
 
     def post(self, request, *args, **kwargs):
-        formset = self.get_formset(data=request.POST)
+        formset = self.get_formset(request.POST, request.FILES)
         if formset.is_valid():
             formset.save()
             messages.success(request, 'Данные успешно сохранены')
             return HttpResponseRedirect(reverse('update_course_description', kwargs={'slug': self.kwargs['slug']}))
         messages.error(request, 'Ошибка при сохранении данных')
         return self.render_to_response({'course': self.course, 'formset': formset})
+
+
+class CourseStudentsListView(ListView):
+    model = Student
+    template_name = 'course/course_students_list.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user != Course.objects.get(slug=self.kwargs.get('slug', None)).owner:
+            raise Http404
+        return super(CourseStudentsListView, self).dispatch(request)
+
+    def get_queryset(self):
+        qs = Student.objects.all()
+        return qs.filter(course=get_object_or_404(Course, slug=self.kwargs['slug']))
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug'))
+        return context
+
+
+class CourseStudentDetailView(DetailView):
+    model = Student
+    template_name = 'course/course_student_detail.html'
+    context_object_name = 'student'
+
+    def get_object(self, queryset=None):
+        return Student.objects.get(
+            course=get_object_or_404(Course, slug=self.kwargs.get('slug', None)),
+            user=get_object_or_404(User, username=self.kwargs.get('username', None))
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug'))
+        context['delete_student_form'] = CourseDeleteStudentForm
+        return context
+
+
+class CourseJoinFormHandle(FormView):
+    form_class = CourseJoinForm
+    template_name = 'course/course.html'
+
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            raise Http404
+        course = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
+        user = self.request.user
+        new_student = Student.objects.create(
+            course=course,
+            user=user,
+        )
+        new_student.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('course', kwargs=self.kwargs)
+
+
+class CourseDeleteStudentFormHandle(FormView):
+    form_class = CourseDeleteStudentForm
+    template_name = 'course/course_student_detail.html'
+
+    def get_success_url(self):
+        if self.request.user == Course.objects.get(slug=self.kwargs.get('slug', None)).owner:
+            return reverse('course_students_list', kwargs={'slug': self.kwargs.get('slug', None)})
+        else:
+            return reverse('course', kwargs={'slug': self.kwargs.get('slug', None)})
+
+    def form_valid(self, form):
+        student = Student.objects.get(user=User.objects.get(username=self.kwargs.get('username', None)),
+                                      course=Course.objects.get(slug=self.kwargs.get('slug', None)))
+        student.delete()
+        return super().form_valid(form)
+
+
+class CourseModuleList(ListView):
+    model = Module
+    template_name = 'course/course_module_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        return context
+
+    def get_queryset(self):
+        qs = Module.objects.filter(
+            course=get_object_or_404(Course, slug=self.kwargs.get('slug', None))
+        )
+        return qs
+
+
+class CourseModuleCreateView(TemplateView):
+    template_name = 'course/course_module_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseModuleCreateView, self).get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        context['form'] = ModuleForm
+        return context
+
+
+class CourseModuleCreateFormHandle(FormView):
+    template_name = 'course/course_module_create.html'
+    form_class = ModuleForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            course = Course.objects.get(slug=self.kwargs.get('slug', None))
+            if self.request.user == course.owner:
+                form.instance.owner = self.request.user
+                form.instance.course = course
+                form.save()
+                messages.success(self.request, 'Модуль создан')
+            else:
+                raise Http404
+        else:
+            messages.error(self.request, 'Ошибка при создании модуля')
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('module_list', kwargs=self.kwargs)
+
+
+class CourseModuleUpdate(UpdateView):
+    model = Module
+    template_name = 'course/course_moduse_update.html'
+    fields = (
+        'title',
+        'description',
+    )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        return context
+
+    def get_object(self, queryset=None):
+        return Module.objects.get(
+            course=get_object_or_404(Course, slug=self.kwargs.get('slug', None)),
+            order=self.kwargs.get('order', None)
+        )
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Данные о модуле успешно обновлены')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.request.path_info

@@ -45,12 +45,29 @@ class CourseForm(forms.ModelForm):
 CourseDescriptionBlockFormSet = inlineformset_factory(
     parent_model=Course,
     model=CourseDescriptionBlock,
-    fields=['title',
+    fields=('title',
             'subtitle',
             'text',
             'image',
-            'image_position'],
-    extra=2,
+            'image_position',),
+    extra=1,
     can_order=True,
     can_delete=True,
 )
+
+
+class ModuleForm(forms.ModelForm):
+    class Meta:
+        model = Module
+        fields = (
+            'title',
+            'description',
+        )
+
+
+class CourseJoinForm(forms.Form):
+    pass
+
+
+class CourseDeleteStudentForm(forms.Form):
+    pass

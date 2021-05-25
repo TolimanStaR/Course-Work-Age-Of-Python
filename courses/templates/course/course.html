@@ -5,6 +5,26 @@
 {% block content %}
     <div>
         <h3>Курс {{ course.title }}</h3>
-        <p><a href="{% url 'update_course' slug=course.slug %}">Перейти к панели управления курсом</a></p>
+        {% if course.owner == user %}
+            <p><a href="{% url 'update_course' slug=course.slug %}">Перейти к панели управления курсом</a></p>
+        {% endif %}
+        {% if user.is_authenticated %}
+            {% if is_subscribed %}
+                <p>Вы являетесь студентом курса</p>
+                <form action="{% url 'course_delete_student' slug=course.slug username=user.username %}" method="post">
+                    {% csrf_token %}
+                    {{ course_leave_form.as_p }}
+                    <input type="submit" value="Покинуть курс">
+                </form>
+            {% elif course.owner != user %}
+                <form action="{% url 'join_course' slug=course.slug %}" method="post">
+                    {% csrf_token %}
+                    {{ course_join_form.as_p }}
+                    <input type="submit" value="Присоединиться к курсу">
+                </form>
+            {% endif %}
+        {% else %}
+            <p>Чтобы присоединиться к курсу, <a href="{% url 'login' %}">авторизуйтесь</a></p>
+        {% endif %}
     </div>
 {% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Студенты{% endblock %}
+
+{% block course_content %}
+    {% for student in object_list %}
+        <p>
+            <a href="{% url 'course_student_detail' slug=course.slug username=student.user.username %}">
+                Студент {{ student.user.username }}</a>
+        </p>
+    {% empty %}
+        <p>На курсе нет студентов</p>
+    {% endfor %}
+{% endblock %}

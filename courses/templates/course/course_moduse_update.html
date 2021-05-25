@@ -1,0 +1,14 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Настройки модуля{% endblock %}
+
+{% block course_content %}
+    <div>
+        <h3>Создать новый модуль</h3>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Сохранить настройки">
+        </form>
+    </div>
+{% endblock %}

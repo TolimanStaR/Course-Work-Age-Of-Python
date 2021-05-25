@@ -5,10 +5,22 @@
 {% block course_content %}
     <div>
         <form action="" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ formset }}
             {{ formset.management_form }}
+            <table>
+                {% for form in formset %}
+                    {% csrf_token %}
+                    {{ form }}
+                {% endfor %}
+            </table>
             <input type="submit" value="Сохранить настройки">
         </form>
+
+        {#                <form action="" method="post" enctype="multipart/form-data">#}
+        {#                    {% csrf_token %}#}
+        {#                    {{ formset }}#}
+        {#                    {{ formset.management_form }}#}
+        {#                    <input type="submit" value="Сохранить настройки">#}
+        {#                </form>#}
+
     </div>
 {% endblock %}

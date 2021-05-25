@@ -103,7 +103,7 @@ class Course(models.Model):
     main_picture = models.ImageField(upload_to='course_main_pictures/', blank=True)
     # picture at the course main page
 
-    students = models.ManyToManyField(to=User, related_name='courses', blank=True)
+    # students = models.ManyToManyField(to=User, related_name='courses', blank=True)
 
     # query of students at the course
 
@@ -112,6 +112,15 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Student(models.Model):
+    course = models.ForeignKey(to=Course, related_name='students', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(to=User, related_name='courses', on_delete=models.DO_NOTHING)
+    created = models.DateTimeField(default=now, editable=False)
+
+    class Meta:
+        ordering = ('-created',)
 
 
 class Module(models.Model):
@@ -161,14 +170,14 @@ class CourseDescriptionBlock(models.Model):
     title = models.CharField(max_length=200)
     subtitle = models.TextField(blank=True)
     text = models.TextField(blank=True)
-    image = models.ImageField(upload_to='course_description_block_images/', blank=True)
+    image = models.ImageField(upload_to='course_description_block_images/')
     image_position = models.TextField(choices=CourseDescriptionBlockImagePosition.choices,
                                       default=CourseDescriptionBlockImagePosition.LEFT)
     created = models.DateTimeField(default=now, editable=False)
     order = OrderField(blank=True, for_fields=['course'], default=1)
 
     class Meta:
-        ordering = ('order',)
+        ordering = ('-order',)
 
 
 class Content(models.Model):
@@ -183,7 +192,7 @@ class Content(models.Model):
                                          'model__in':
                                              (
                                                  'puretext',
-                                                 'pdf',
+                                                 # 'pdf',
                                                  'latex',
                                                  'codelisting',
                                                  'picture',
@@ -226,8 +235,8 @@ class PureText(ItemBase):
     text = models.TextField(blank=True)
 
 
-class PDF(ItemBase):
-    file = models.FileField(upload_to='course_pdf_files/')
+# class PDF(ItemBase):
+#     file = models.FileField(upload_to='course_pdf_files/')
 
 
 class LaTeX(ItemBase):

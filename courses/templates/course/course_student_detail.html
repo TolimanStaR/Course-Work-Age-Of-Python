@@ -1,0 +1,16 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Управление студентом{% endblock %}
+
+{% block course_content %}
+    <div>
+        <p>{{ student.user.username }}</p>
+        <img src="{{ student.user.user_profile.profile_photo.url }}" style="width: 200px" alt="Photo">
+        <p>~ add some stats</p>
+        <form action="{% url 'course_delete_student' slug=course.slug username=student.user.username %}" method="post">
+            {% csrf_token %}
+            {{ delete_student_form.as_p }}
+            <input type="submit" value="Отчислить студента">
+        </form>
+    </div>
+{% endblock %}

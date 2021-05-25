@@ -1,0 +1,14 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Создать модуль{% endblock %}
+
+{% block course_content %}
+    <div>
+        <h3>Создать новый модуль</h3>
+        <form action="{% url 'create_module_success' slug=course.slug %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Создать модуль">
+        </form>
+    </div>
+{% endblock %}

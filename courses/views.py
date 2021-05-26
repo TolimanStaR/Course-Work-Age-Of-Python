@@ -2,11 +2,13 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView, TemplateView, ListView
 from django.contrib import messages
 from django.views.generic.base import View, TemplateResponseMixin
+from django.forms.models import modelform_factory
+from django.apps import apps
 
 from .models import *
 
@@ -479,7 +481,7 @@ class CourseModuleCreateFormHandle(FormView):
 
 class CourseModuleUpdate(UpdateView):
     model = Module
-    template_name = 'course/course_moduse_update.html'
+    template_name = 'course/course_module_update.html'
     fields = (
         'title',
         'description',
@@ -504,3 +506,108 @@ class CourseModuleUpdate(UpdateView):
 
     def get_success_url(self):
         return self.request.path_info
+
+
+class ContentCreateUpdateView(TemplateView, TemplateResponseMixin, View):
+    course = None
+    module = None
+    model = None
+    obj = None
+    template_name = 'module/module_content_create_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = Course.objects.get(slug=self.kwargs['slug'])
+        return context
+
+    @staticmethod
+    def get_model(model_name):
+        if model_name in ['puretext',
+                          # 'pdf',
+                          'latex',
+                          'codelisting',
+                          'picture',
+                          'videolink', ]:
+            return apps.get_model(app_label='courses', model_name=model_name)
+        else:
+            raise Http404
+
+    @staticmethod
+    def get_form(model, *args, **kwargs):
+        form = modelform_factory(model=model,
+                                 exclude=[
+                                     'owner',
+                                     'order',
+                                     'created',
+                                     'updated',
+                                 ])
+        return form(*args, **kwargs)
+
+    def dispatch(self, request, slug, order, model_name, id=None, *args, **kwargs):
+        self.course = Course.objects.get(slug=slug)
+        self.module = get_object_or_404(Module, course=self.course, order=order)
+        self.model = ContentCreateUpdateView.get_model(model_name)
+        if id:
+            self.obj = get_object_or_404(
+                self.model,
+                id=id,
+                owner=self.request.user,
+            )
+        return super(ContentCreateUpdateView, self).dispatch(request, slug, order, model_name)
+
+    def get(self, request, *args, **kwargs):
+        form = ContentCreateUpdateView.get_form(self.model, instance=self.obj)
+        return self.render_to_response({'form': form, 'object': self.obj, 'course': self.course})
+
+    def post(self, request, slug, order, model_name, id=None, *args, **kwargs):
+        form = ContentCreateUpdateView.get_form(self.model,
+                                                instance=self.obj,
+                                                data=request.POST,
+                                                files=request.FILES)
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.owner = self.request.user
+            obj.save()
+
+            if not id:
+                Content.objects.create(module=self.module, item=obj)
+
+            return redirect('course_module_content_list', self.course.slug, self.module.order)
+
+        return self.render_to_response({'form': form, 'object': self.obj, 'course': self.course})
+
+
+class ContentDeleteView(View):
+    def post(self, request, id):
+        content = get_object_or_404(
+            Content,
+            id=id,
+            module__course__owner=self.request.user,
+        )
+        module = content.module
+        course = module.course
+        content.item.delete()
+        content.delete()
+        return redirect('course_module_content_list', course.slug, module.order)
+
+
+class CourseModuleContentListView(TemplateView, LoginRequiredMixin):
+    template_name = 'module/module_content_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course,
+            slug=self.kwargs.get('slug', None)
+        )
+        if context['course'].owner != self.request.user:
+            raise Http404
+        context['module'] = get_object_or_404(
+            Module,
+            course=context['course'],
+            order=self.kwargs.get('order', None)
+        )
+        qs = Content.objects.all()
+        context['object_list'] = qs.filter(module=context['module'])
+        return context

@@ -1,0 +1,13 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Список контента{% endblock %}
+
+{% block course_content %}
+    <div>
+        {% for content in object_list %}
+            <p>{{ content }} ({{ content.content_type }}) <a href="">Редактировать</a> <a href="">Удалить</a></p>
+        {% empty %}
+            <p>Контента нет</p>
+        {% endfor %}
+    </div>
+{% endblock %}

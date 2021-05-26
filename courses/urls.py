@@ -96,4 +96,16 @@ urlpatterns = [
          CourseModuleList.as_view(),
          name='module_list'),
 
+    path('course/<slug:slug>/module/<int:order>/content/<model_name>/create/',
+         ContentCreateUpdateView.as_view(),
+         name='course_module_content_create'),
+
+    path('course/<slug:slug>/module/<int:order>/content/<model_name>/<id>/',
+         ContentCreateUpdateView.as_view(),
+         name='course_module_content_update'),
+
+    path('course/<slug:slug>/module/<int:order>/content/list/',
+         CourseModuleContentListView.as_view(),
+         name='course_module_content_list'),
+
 ]

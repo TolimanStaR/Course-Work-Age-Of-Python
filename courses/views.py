@@ -579,7 +579,7 @@ class ContentCreateUpdateView(TemplateView, TemplateResponseMixin, View):
 
 
 class ContentDeleteView(View):
-    def post(self, request, id):
+    def post(self, request, slug, order, id):
         content = get_object_or_404(
             Content,
             id=id,

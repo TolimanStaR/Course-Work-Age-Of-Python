@@ -108,4 +108,8 @@ urlpatterns = [
          CourseModuleContentListView.as_view(),
          name='course_module_content_list'),
 
+    path('course/<slug:slug>/module/<int:order>/delete_content/<id>/',
+         ContentDeleteView.as_view(),
+         name='course_module_content_delete'),
+
 ]

@@ -1,13 +1,44 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load course %}
+
 {% block title %}Список контента{% endblock %}
 
 {% block course_content %}
     <div>
         {% for content in object_list %}
-            <p>{{ content }} ({{ content.content_type }}) <a href="">Редактировать</a> <a href="">Удалить</a></p>
+            {#            <p>{{ content }} ({{ content.content_type }}) <a href="">Редактировать</a> <a#}
+            {#                    href="{% url 'course_module_content_delete' slug=course.slug order=module.order id=content.id %}">Удалить</a>#}
+            {#            </p>#}
+            <p>
+                {{ content }} : {{ content.content_type }} <a
+                    href="{% url 'course_module_content_update' slug=course.slug order=module.order model_name=content.item|model_name id=content.id %}">Редактировать</a>
+            <form action="{% url 'course_module_content_delete' slug=course.slug order=module.order id=content.id %}"
+                  method="post">
+                {% csrf_token %}
+                <input type="submit" value="Удалить блок контента">
+            </form>
+            </p>
         {% empty %}
             <p>Контента нет</p>
         {% endfor %}
+        <p>Добавить контент:</p>
+        <ul>
+            <li>
+                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="puretext" %}">Блок
+                    текста</a></li>
+            <li>
+                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="latex" %}">LaTeX
+                    файл</a></li>
+            <li>
+                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="codelisting" %}">Блок
+                    программного кода</a></li>
+            <li>
+                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="picture" %}">Изображение</a>
+            </li>
+            <li>
+                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="videolink" %}">Видео</a>
+            </li>
+        </ul>
     </div>
 {% endblock %}

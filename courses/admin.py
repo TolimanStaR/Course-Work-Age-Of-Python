@@ -32,3 +32,8 @@ class ListElementInLine(admin.StackedInline):
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):
     inlines = [ListElementInLine, ]
+
+
+@admin.register(Content)
+class ContentAdmin(admin.ModelAdmin):
+    pass

@@ -1,0 +1,15 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Новая задача{% endblock %}
+
+{% block course_content %}
+    <div>
+        <h3>Заполните данные о задаче</h3>
+        <form action="{% url 'course_task_create_success' slug=course.slug %}" method="post"
+              enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ course_task_form.as_p }}
+            <input type="submit" value="Создать">
+        </form>
+    </div>
+{% endblock %}

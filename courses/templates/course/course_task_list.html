@@ -1,0 +1,17 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Задачи{% endblock %}
+{% block course_content %}
+    <div>
+        <h3>Задачи</h3>
+        {% for task in object_list %}
+            <p>{{ task.title }} [валидация: {{ task.is_validated }}] <a
+                    href="{% url 'update_course_task' slug=course.slug id=task.id %}">Редактировать</a> <a
+                    href="">Тесты</a>
+            </p>
+        {% empty %}
+            <p>На курсе нет задач</p>
+        {% endfor %}
+        <p><a href="{% url 'course_task_create' slug=course.slug %}">Добавить задачу</a></p>
+    </div>
+{% endblock %}

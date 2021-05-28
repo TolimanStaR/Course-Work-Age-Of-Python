@@ -11,6 +11,7 @@ from django.forms.models import modelform_factory
 from django.apps import apps
 
 from .models import *
+from management.models import CodeFile
 
 from .forms import *
 
@@ -611,3 +612,97 @@ class CourseModuleContentListView(TemplateView, LoginRequiredMixin):
         qs = Content.objects.all()
         context['object_list'] = qs.filter(module=context['module'])
         return context
+
+
+class CourseTaskList(ListView):
+    model = CourseTask
+    template_name = 'course/course_task_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = Course.objects.get(slug=self.kwargs.get('slug', None))
+        return context
+
+    def get_queryset(self):
+        qs = self.model.objects.all()
+        return qs.filter(course=Course.objects.get(slug=self.kwargs.get('slug', None)))
+
+
+class CourseTaskCreateView(TemplateView):
+    template_name = 'task/task_create.html'
+
+    # noinspection DuplicatedCode
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = Course.objects.get(slug=self.kwargs.get('slug', None))
+        context['course_task_form'] = CourseTaskForm
+        return context
+
+
+class CourseTaskCreateFormHandle(FormView):
+    template_name = 'task/task_create.html'
+    form_class = CourseTaskForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            # add solution creation to send to validate it
+            form.save(commit=False)
+            form.instance.course = Course.objects.get(slug=self.kwargs.get('slug', None))
+            new_code_file = CodeFile.objects.create(
+                file=form.cleaned_data['solution_file_raw'],
+                language=form.cleaned_data['solution_file_lang'],
+                code=form.cleaned_data['solution_file_raw'].read().decode('utf-8'),
+                file_name=form.cleaned_data['solution_file_raw'].name,
+            )
+            new_code_file.save()
+            form.instance.solution_file = new_code_file
+            form.save()
+            messages.success(self.request, 'Задача сохранена')
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('course_task_list', kwargs=self.kwargs)
+
+
+class CourseTaskUpdateView(UpdateView):
+    template_name = 'task/task_update.html'
+    model = CourseTask
+    fields = (
+        'title',
+        'task_description',
+        'input_description',
+        'output_description',
+        'input_example',
+        'output_example',
+        'time_limit_seconds',
+        'answer_type',
+        'grading_system',
+        'solution_file_raw',
+        'solution_file_lang',
+        'show_in_task_list',
+    )
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(CourseTask, id=self.kwargs.get('id', None))
+
+    def form_valid(self, form):
+        if form.is_valid():
+            code_file = CodeFile.objects.get(task=form.instance)
+            code_file.file = form.cleaned_data['solution_file_raw']
+            code_file.language = form.cleaned_data['solution_file_lang']
+            code_file.code = form.cleaned_data['solution_file_raw'].read().decode('utf-8')
+            code_file.save()
+            form.save()
+            messages.success(self.request, 'Задача обновлена')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        return context
+
+    def get_success_url(self):
+        return self.request.path_info

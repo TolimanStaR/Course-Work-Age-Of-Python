@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -6,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
 from management.fields import OrderField
+
+from management.models import AbstractTask, Test, Solution, Language
 
 
 class Channel(models.Model):
@@ -253,3 +257,53 @@ class Picture(ItemBase):
 
 class VideoLink(ItemBase):
     url = models.URLField()
+
+
+class CourseTask(AbstractTask):
+    course = models.ForeignKey(to=Course,
+                               related_name='tasks',
+                               on_delete=models.DO_NOTHING)
+
+    show_in_task_list = models.BooleanField(default=False)
+    solution_file_raw = models.FileField(default=None, upload_to='course_files/')
+    solution_file_lang = models.TextField(choices=Language.choices, default=Language.GNU_CXX_14)
+
+
+class CourseSolution(Solution):
+    course = models.ForeignKey(to=Course,
+                               related_name='solutions',
+                               on_delete=models.DO_NOTHING)
+    course_task = models.ForeignKey(to=CourseTask, related_name='course_solutions', on_delete=models.CASCADE,
+                                    default=None)
+
+
+class ContestStatus(models.TextChoices):
+    WAIT_FOR_START = 'WAIT', _('Ожидается начало контеста.')
+    ACTIVE = 'ACTIVE', _('В данный момент контест идет.')
+    FINISHED = 'FINISHED', _('Контест завершен. ')
+
+
+class Contest(models.Model):
+    course = models.ForeignKey(to=Course,
+                               related_name='contests',
+                               on_delete=models.DO_NOTHING)
+    title = models.CharField(max_length=200)
+    start_time = models.DateTimeField(default=datetime.datetime.now(tz=None) + datetime.timedelta(days=1))
+    duration = models.DurationField(default=datetime.timedelta(hours=2))
+    tasks = models.ManyToManyField(to=CourseTask, related_name='contests', blank=True)
+    status = models.TextField(choices=ContestStatus.choices, default=ContestStatus.WAIT_FOR_START)
+
+
+class ContestParticipant(models.Model):
+    contest = models.ForeignKey(to=Contest,
+                                related_name='participants',
+                                on_delete=models.CASCADE,
+                                default=None)
+    user = models.ForeignKey(to=User, related_name='participated', on_delete=models.CASCADE, default=None)
+
+
+class ContestSolution(Solution):
+    participant = models.ForeignKey(to=ContestParticipant,
+                                    related_name='contest_solutions',
+                                    on_delete=models.CASCADE,
+                                    default=None)

@@ -71,3 +71,22 @@ class CourseJoinForm(forms.Form):
 
 class CourseDeleteStudentForm(forms.Form):
     pass
+
+
+class CourseTaskForm(forms.ModelForm):
+    class Meta:
+        model = CourseTask
+        fields = (
+            'title',
+            'task_description',
+            'input_description',
+            'output_description',
+            'input_example',
+            'output_example',
+            'time_limit_seconds',
+            'answer_type',
+            'grading_system',
+            'solution_file_raw',
+            'solution_file_lang',
+            'show_in_task_list',
+        )

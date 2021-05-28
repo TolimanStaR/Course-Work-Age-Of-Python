@@ -12,7 +12,7 @@
             <a href="{% url 'update_course_description' slug=course.slug %}">Описание</a>
             <a href="{% url 'course_students_list' slug=course.slug %}">Студенты</a>
             <a href="{% url 'module_list' slug=course.slug %}">Модули</a>
-            <a href="">Задачи</a>
+            <a href="{% url 'course_task_list' slug=course.slug %}">Задачи</a>
             <a href="">Соревнования</a>
             <a href="">Экзамены</a>
         </p>

@@ -81,8 +81,11 @@ class AbstractTask(models.Model):
     output_example = models.TextField()
 
     answer_type = models.TextField(choices=TaskAnswerType.choices)
-    task_execute_type = models.TextField(choices=CodeExecuteType.choices)
-    solution_file = models.OneToOneField(CodeFile, on_delete=models.SET_NULL, null=True)
+    task_execute_type = models.TextField(choices=CodeExecuteType.choices, default=CodeExecuteType.BUILD_AND_RUN)
+    solution_file = models.OneToOneField(to=CodeFile,
+                                         on_delete=models.SET_NULL,
+                                         null=True, blank=True,
+                                         related_name='task')
 
     grading_system = models.TextField(choices=TaskGradingSystem.choices, default=TaskGradingSystem.BINARY)
     is_validated = models.BooleanField(default=False)
@@ -94,7 +97,7 @@ class AbstractTask(models.Model):
 class Test(models.Model):
     task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='tests')
     content = models.TextField()
-    right_answer = models.TextField()
+    right_answer = models.TextField(blank=True)
     max_points = models.IntegerField(default=1)
 
     class Meta:
@@ -102,7 +105,7 @@ class Test(models.Model):
 
 
 class Solution(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solutions')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solutions', blank=True)
     code_file = models.OneToOneField(CodeFile, on_delete=models.CASCADE, related_name='code_file')
 
     created = models.DateTimeField(default=datetime.now)
@@ -111,7 +114,7 @@ class Solution(models.Model):
     verdict = models.TextField(choices=Verdict.choices, default=Verdict.EMPTY_VERDICT)
     verdict_text = models.TextField(blank=True, default='Посылка не проверена')
 
-    task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='solutions', default=None)
+    task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='solutions', default=None, blank=True)
     node = models.IntegerField(default=1)
 
     event_type = models.TextField(choices=SolutionEventType.choices, default=SolutionEventType.USER_TASK_SOLUTION)

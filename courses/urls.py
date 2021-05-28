@@ -112,4 +112,20 @@ urlpatterns = [
          ContentDeleteView.as_view(),
          name='course_module_content_delete'),
 
+    path('course/<slug:slug>/task_list/',
+         CourseTaskList.as_view(),
+         name='course_task_list'),
+
+    path('course/<slug:slug>/create_task/',
+         CourseTaskCreateView.as_view(),
+         name='course_task_create'),
+
+    path('course/<slug:slug>/update_task/<id>/',
+         CourseTaskUpdateView.as_view(),
+         name='update_course_task'),
+
+    path('course/<slug:slug>/create_task/confirm/',
+         CourseTaskCreateFormHandle.as_view(),
+         name='course_task_create_success'),
+
 ]

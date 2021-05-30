@@ -11,7 +11,7 @@ from django.forms.models import modelform_factory
 from django.apps import apps
 
 from .models import *
-from management.models import CodeFile
+from management.models import CodeFile, SolutionEventType
 
 from .forms import *
 
@@ -655,8 +655,18 @@ class CourseTaskCreateFormHandle(FormView):
                 file_name=form.cleaned_data['solution_file_raw'].name,
             )
             new_code_file.save()
+
             form.instance.solution_file = new_code_file
             form.save()
+
+            task_validate_solution = Solution.objects.create(
+                author=self.request.user,
+                code_file=new_code_file,
+                task=form.instance,
+                node=1,
+                event_type=SolutionEventType.AUTHOR_TASK_VALIDATION,
+            )
+            task_validate_solution.save()
             messages.success(self.request, 'Задача сохранена')
 
         return super().form_valid(form)
@@ -694,6 +704,16 @@ class CourseTaskUpdateView(UpdateView):
             code_file.code = form.cleaned_data['solution_file_raw'].read().decode('utf-8')
             code_file.save()
             form.save()
+
+            task_validate_solution = Solution.objects.create(
+                author=self.request.user,
+                code_file=code_file,
+                task=form.instance,
+                node=1,
+                event_type=SolutionEventType.AUTHOR_TASK_VALIDATION,
+            )
+            task_validate_solution.save()
+
             messages.success(self.request, 'Задача обновлена')
         return super().form_valid(form)
 
@@ -706,3 +726,50 @@ class CourseTaskUpdateView(UpdateView):
 
     def get_success_url(self):
         return self.request.path_info
+
+
+class CourseTaskTestView(TemplateView, TemplateResponseMixin, View):
+    task = None
+    course = None
+    template_name = 'task/task_tests_create_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs['slug'])
+        context['task'] = get_object_or_404(CourseTask,
+                                            id=self.kwargs.get('id', None))
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        self.task = get_object_or_404(CourseTask,
+                                      id=self.kwargs.get('id', None))
+        self.course = get_object_or_404(Course,
+                                        slug=self.kwargs.get('slug', None))
+        return super(CourseTaskTestView, self).dispatch(request=request)
+
+    def get_formset(self, *args):
+        return CourseTaskTestFormSet(
+            *args,
+            instance=self.task,
+        )
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user != Course.objects.get(slug=self.kwargs.get('slug', None)).owner:
+            raise Http404
+        formset = self.get_formset()
+        return self.render_to_response({'course': self.course, 'task': self.task, 'formset': formset})
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_formset(request.POST, request.FILES)
+        task = get_object_or_404(CourseTask, id=self.kwargs.get('id', None))
+        for form in formset:
+            print(form.fields['DELETE'].bound_data)
+            print(form.fields['DELETE'].prepare_value)
+            form.instance.task = task
+        print(formset.errors)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, 'Тесты сохранены')
+            return HttpResponseRedirect(reverse('course_task_tests', kwargs=self.kwargs))
+        messages.error(request, 'Ошибка при сохранении тестов')
+        return self.render_to_response({'course': self.course, 'task': self.task, 'formset': formset})

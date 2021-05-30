@@ -128,4 +128,8 @@ urlpatterns = [
          CourseTaskCreateFormHandle.as_view(),
          name='course_task_create_success'),
 
+    path('course/<slug:slug>/task/<id>/tests/',
+         CourseTaskTestView.as_view(),
+         name='course_task_tests'),
+
 ]

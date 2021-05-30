@@ -113,7 +113,7 @@ DEFAULT_FILE_STORAGE = 'django_hashedfilenamestorage.storage.HashedFilenameFileS
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-RU'
+LANGUAGE_CODE = 'en-US'
 
 USE_I18N = True
 

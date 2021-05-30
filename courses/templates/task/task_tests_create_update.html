@@ -1,0 +1,47 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Редактировать тесты{% endblock %}
+
+{% block course_content %}
+    <div>
+        {#        <form action="" method="post" enctype="multipart/form-data">#}
+        {#            {{ formset.management_form }}#}
+        {#            <table>#}
+        {#                {% for form in formset %}#}
+        {#                    <tr>#}
+        {#                        <td>#}
+        {#                            {% csrf_token %}#}
+        {#                            {{ form.content }}#}
+        {#                            {% if form.instance.rigth_answer %}#}
+        {#                                <p>{{ form.instance.right_answer|linebreaks }}</p>#}
+        {#                            {% endif %}#}
+        {#                            <label for="id_tests-3-DELETE">Удалить этот тест:</label>#}
+        {#                            <input type="checkbox" name="tests-{{ forloop.counter0 }}-DELETE"#}
+        {#                                   id="id_tests-{{ forloop.counter0 }}-DELETE">#}
+        {#                            <input type="hidden" name="tests-{{ forloop.counter0 }}-id"#}
+        {#                                   id="id_tests-{{ forloop.counter0 }}-id">#}
+        {#                            <input type="hidden" name="tests-{{ forloop.counter0 }}-task" value="{{ task.id }}"#}
+        {#                                   id="id_tests-{{ forloop.counter0 }}-task">#}
+        {#                        </td>#}
+        {#                    </tr>#}
+        {#                {% endfor %}#}
+        {#            </table>#}
+        {#            <input type="submit" value="Сохранить тесты">#}
+        {#        </form>#}
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ formset.management_form }}
+            <table>
+                {% for form in formset %}
+                    {% csrf_token %}
+                    {{ form }}
+                    {% if form.instance.rigth_answer %}
+                        <p>Правильный ответ на тест:</p>
+                        <p>{{ form.instance.right_answer|linebreaks }}</p>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <input type="submit" value="Сохранить настройки">
+        </form>
+
+    </div>
+{% endblock %}

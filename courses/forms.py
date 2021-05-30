@@ -55,6 +55,16 @@ CourseDescriptionBlockFormSet = inlineformset_factory(
     can_delete=True,
 )
 
+CourseTaskTestFormSet = inlineformset_factory(
+    parent_model=CourseTask,
+    model=Test,
+    fields=(
+        'content',
+    ),
+    extra=3,
+    can_delete=True,
+)
+
 
 class ModuleForm(forms.ModelForm):
     class Meta:

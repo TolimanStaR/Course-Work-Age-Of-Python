@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
+from datetimewidget.widgets import DateTimeWidget, TimeWidget
 
 from .models import *
 
@@ -100,3 +101,47 @@ class CourseTaskForm(forms.ModelForm):
             'solution_file_lang',
             'show_in_task_list',
         )
+
+
+class ContestForm(forms.ModelForm):
+    class Meta:
+        model = Contest
+        fields = (
+            'title',
+            'start_time',
+            'duration',
+        )
+        widgets = {
+            'start_time': DateTimeWidget(attrs={'id': 'start_time'}, usel10n=True, bootstrap_version=3),
+            'duration': None
+        }
+
+
+class ContestTasksForm(forms.Form):
+    tasks = forms.ModelMultipleChoiceField(queryset=AbstractTask.objects.all(), widget=forms.CheckboxSelectMultiple)
+
+
+class ContestTaskChoiceForm(forms.ModelForm):
+    class Meta:
+        model = Contest
+        fields = (
+            'tasks',
+        )
+
+    tasks = forms.ModelMultipleChoiceField(
+        queryset=CourseTask.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+
+    )
+
+
+class ContestActionSolutionRejudge(forms.Form):
+    pass
+
+
+class ContestActionDeleteParticipant(forms.Form):
+    reason = forms.CharField()
+
+
+class ContestParticipantRegistration(forms.Form):
+    pass

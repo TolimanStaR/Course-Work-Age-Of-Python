@@ -1,0 +1,15 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Решения участников{% endblock %}
+
+{% block course_content %}
+    <div>
+        <h3>Все посылки</h3>
+        {% for solution in object_list %}
+            <p>[{{ solution.created }}] Посылка №{{ forloop.counter }} участника {{ solution.participant.user }} <a
+                    href="{% url 'contest_solution_detail' slug=course.slug id=contest.id solution_id=solution.id %}">Подробно</a></p>
+        {% empty %}
+            <p>Пока что посылок нет</p>
+        {% endfor %}
+    </div>
+{% endblock %}

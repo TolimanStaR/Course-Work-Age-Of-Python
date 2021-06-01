@@ -5,7 +5,7 @@
     <div>
         <h3>Задачи</h3>
         {% for task in object_list %}
-            <p>{{ task.title }} [валидация: {{ task.is_validated }}] <a
+            <p>{{ task.title }} [валидация: {{ task.is_validated }}] [статус: {{ task.last_validate_solution.verdict }}]<a
                     href="{% url 'update_course_task' slug=course.slug id=task.id %}">Редактировать</a> <a
                     href="{% url 'course_task_tests' slug=course.slug id=task.id %}">Тесты</a>
             </p>

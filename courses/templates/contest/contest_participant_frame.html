@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+
+{# "contest" and "participant" context variables required #}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    {% if contest.status != "WAIT" %}
+        <a href="">Задачи</a>
+        <a href="">Отправить решение</a>
+        <a href="">Написать решение</a>
+        <a href="">Посылки</a>
+        <a href="">Рейтинг</a>
+        {% block contest_content %}
+        {% endblock %}
+    {% else %}
+        <p>Соревнование пока не началось</p>
+        {% if participant %}
+        {% else %}
+            <p>Чтобы принять участие, <a href="">зарегистрируйтесь</a></p>
+        {% endif %}
+    {% endif %}
+{% endblock %}

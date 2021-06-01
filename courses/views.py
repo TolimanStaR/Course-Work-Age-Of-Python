@@ -11,7 +11,7 @@ from django.forms.models import modelform_factory
 from django.apps import apps
 
 from .models import *
-from management.models import CodeFile, SolutionEventType
+from management.models import CodeFile, SolutionEventType, Status, Verdict
 
 from .forms import *
 
@@ -645,7 +645,6 @@ class CourseTaskCreateFormHandle(FormView):
 
     def form_valid(self, form):
         if form.is_valid():
-            # add solution creation to send to validate it
             form.save(commit=False)
             form.instance.course = Course.objects.get(slug=self.kwargs.get('slug', None))
             new_code_file = CodeFile.objects.create(
@@ -658,15 +657,18 @@ class CourseTaskCreateFormHandle(FormView):
 
             form.instance.solution_file = new_code_file
             form.save()
-
-            task_validate_solution = Solution.objects.create(
+            task_validate_solution = CourseSolution.objects.create(
                 author=self.request.user,
                 code_file=new_code_file,
                 task=form.instance,
                 node=1,
                 event_type=SolutionEventType.AUTHOR_TASK_VALIDATION,
+                course=form.instance.course,
+                course_task=form.instance,
             )
             task_validate_solution.save()
+            form.instance.last_validate_solution = task_validate_solution
+            form.save()
             messages.success(self.request, 'Задача сохранена')
 
         return super().form_valid(form)
@@ -705,14 +707,24 @@ class CourseTaskUpdateView(UpdateView):
             code_file.save()
             form.save()
 
-            task_validate_solution = Solution.objects.create(
+            c_f = code_file
+            c_f.pk = None
+            c_f.save()
+
+            task_validate_solution = CourseSolution.objects.create(
                 author=self.request.user,
-                code_file=code_file,
+                code_file=c_f,
                 task=form.instance,
+                course=form.instance.course,
+                course_task=form.instance,
                 node=1,
                 event_type=SolutionEventType.AUTHOR_TASK_VALIDATION,
             )
             task_validate_solution.save()
+
+            form.instance.solution_file = code_file
+            form.instance.last_validate_solution = task_validate_solution
+            form.save()
 
             messages.success(self.request, 'Задача обновлена')
         return super().form_valid(form)
@@ -748,10 +760,15 @@ class CourseTaskTestView(TemplateView, TemplateResponseMixin, View):
         return super(CourseTaskTestView, self).dispatch(request=request)
 
     def get_formset(self, *args):
-        return CourseTaskTestFormSet(
+        formset = CourseTaskTestFormSet(
             *args,
             instance=self.task,
         )
+        for form in formset:
+            form.fields['content'].label = 'Содержимое теста:'
+            form.fields['DELETE'].label = 'Удалить этот тест'
+
+        return formset
 
     def get(self, request, *args, **kwargs):
         if self.request.user != Course.objects.get(slug=self.kwargs.get('slug', None)).owner:
@@ -763,13 +780,300 @@ class CourseTaskTestView(TemplateView, TemplateResponseMixin, View):
         formset = self.get_formset(request.POST, request.FILES)
         task = get_object_or_404(CourseTask, id=self.kwargs.get('id', None))
         for form in formset:
-            print(form.fields['DELETE'].bound_data)
-            print(form.fields['DELETE'].prepare_value)
             form.instance.task = task
-        print(formset.errors)
         if formset.is_valid():
             formset.save()
             messages.success(request, 'Тесты сохранены')
+
+            c_f = task.solution_file
+            c_f.pk = None
+            c_f.save()
+
+            if len(formset) > 0:
+                task_validate_solution = CourseSolution.objects.create(
+                    author=self.request.user,
+                    code_file=c_f,
+                    course=task.course,
+                    course_task=task,
+                    task=task,
+                    node=1,
+                    event_type=SolutionEventType.AUTHOR_TASK_VALIDATION,
+                )
+                task_validate_solution.save()
+                if task.last_validate_solution:
+                    task.last_validate_solution = task_validate_solution
+                else:
+                    task.last_validate_solution = task_validate_solution
+                task.save()
+
             return HttpResponseRedirect(reverse('course_task_tests', kwargs=self.kwargs))
         messages.error(request, 'Ошибка при сохранении тестов')
         return self.render_to_response({'course': self.course, 'task': self.task, 'formset': formset})
+
+
+class ContestListView(ListView):
+    template_name = 'contest/contest_list_edit.html'
+    model = Contest
+
+    def get_queryset(self):
+        qs = Contest.objects.all()
+        course = Course.objects.get(slug=self.kwargs['slug'])
+        if course.owner != self.request.user:
+            raise Http404
+        return qs.filter(course=Course.objects.get(slug=self.kwargs['slug']))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ContestForm
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        return context
+
+
+class ContestCreateView(TemplateView, LoginRequiredMixin):
+    template_name = 'contest/contest_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ContestForm
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        return context
+
+
+class ContestCreateFormHandle(FormView):
+    form_class = ContestForm
+    template_name = 'contest/contest_create.html'
+
+    def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            raise Http404
+        if form.is_valid():
+            form.instance.course = get_object_or_404(
+                Course, slug=self.kwargs.get('slug', None)
+            )
+            form.save()
+            messages.success(self.request, 'Контест создан')
+        else:
+            messages.error(self.request, 'Произошла ошибка при создании контеста')
+        return super(ContestCreateFormHandle, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('contest_list_edit', kwargs=self.kwargs)
+
+
+class ContestUpdateView(UpdateView, LoginRequiredMixin):
+    model = Contest
+    template_name = 'contest/contest_update.html'
+    form_class = ContestForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        return context
+
+    def get_object(self, queryset=None):
+        # course = Course.objects.get(self.kwargs['slug'])
+        # if course.owner != self.request.user:
+        #     raise Http404
+
+        return get_object_or_404(
+            Contest, id=self.kwargs.get('id', None)
+        )
+
+    def form_valid(self, form):
+        if form.is_valid():
+            form.save()
+            messages.success(self.request, 'Контест успешно обновлен')
+        else:
+            messages.error(self.request, 'Произошла ошибка при обновлении контеста')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.request.path_info
+
+
+class ContestTaskListEditView(TemplateView, LoginRequiredMixin):
+    template_name = 'contest/contest_task_choice.html'
+
+    # noinspection DuplicatedCode
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            raise Http404
+        context['contest'] = get_object_or_404(
+            Contest, id=self.kwargs.get('id', None)
+        )
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        context['form'] = ContestTaskChoiceForm(instance=Contest.objects.get(id=self.kwargs['id']))
+        context['form'].fields['tasks'].queryset = CourseTask.objects.filter(
+            course=context['course'],
+        )
+        return context
+
+
+class ContestTaskListFormHandle(FormView):
+    form_class = ContestTaskChoiceForm
+    template_name = 'contest/contest_task_choice.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.POST.get('tasks') is None:
+            messages.error(self.request, 'На соревновании дожна быть хотя бы одна задача!')
+            return HttpResponseRedirect(reverse('contest_edit_tasks', kwargs=self.kwargs))
+        return super().dispatch(request, **kwargs)
+
+    def form_valid(self, form):
+        contest = get_object_or_404(
+            Contest,
+            id=self.kwargs.get('id', None)
+        )
+
+        contest.tasks.remove(*contest.tasks.all())
+        for task in form.cleaned_data['tasks']:
+            contest.tasks.add(task)
+
+        contest.save()
+        messages.success(self.request, 'Список задач обновлен')
+        return super(ContestTaskListFormHandle, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('contest_edit_tasks', kwargs=self.kwargs)
+
+
+class ContestSolutionsListView(ListView):
+    model = ContestSolution
+    template_name = 'contest/contest_solutions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            raise Http404
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+        context['contest'] = get_object_or_404(
+            Contest, id=self.kwargs.get('id', None)
+        )
+        return context
+
+    def get_queryset(self):
+        qs = ContestSolution.objects.all()
+        contest = get_object_or_404(
+            Contest,
+            id=self.kwargs.get('id', None)
+        )
+        return qs.filter(participant__contest=contest)
+
+
+class ContestSolutionDetailView(DetailView):
+    model = ContestSolution
+    template_name = 'contest/contest_solution_detail.html'
+    context_object_name = 'solution'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            raise Http404
+        context['contest'] = get_object_or_404(
+            Contest, id=self.kwargs.get('id', None)
+        )
+        context['course'] = get_object_or_404(
+            Course, slug=self.kwargs.get('slug', None)
+        )
+
+        context['action_rejudge_form'] = ContestActionSolutionRejudge
+        context['action_delete_participant_form'] = ContestActionDeleteParticipant
+        return context
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            ContestSolution,
+            id=self.kwargs.get('solution_id', None)
+        )
+
+
+class ContestActionSolutionRejudgeFormHandle(FormView):
+    template_name = 'contest/contest_solution_detail.html'
+    form_class = ContestActionSolutionRejudge
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Решение было отправлено на перепроверку')
+        solution = get_object_or_404(
+            ContestSolution,
+            id=self.kwargs.get('solution_id', None)
+        )
+        solution.status = Status.WAIT_FOR_CHECK
+        solution.verdict = Verdict.EMPTY_VERDICT
+        solution.verdict_text = 'Посылка не проверена'
+        solution.save()
+        return super().form_valid(form=form)
+
+    def get_success_url(self):
+        return reverse('contest_solution_detail', kwargs=self.kwargs)
+
+
+class ContestActionDeleteParticipantFormHandle(FormView):
+    template_name = 'contest/contest_solution_detail.html'
+    form_class = ContestActionDeleteParticipant
+
+    def form_valid(self, form):
+        reason = form.cleaned_data['reason']
+        solution = get_object_or_404(
+            ContestSolution,
+            id=self.kwargs.get('solution_id', None)
+        )
+        solution.participant.deleted = True
+        solution.participant.delete_reason = reason
+        solution.participant.save()
+        return super().form_valid(form=form)
+
+    def get_success_url(self):
+        return reverse('contest_solutions_list', kwargs={
+            'slug': self.kwargs['slug'],
+            'id': self.kwargs['id'],
+        })
+
+
+class ContestParticipantRegistration(TemplateView):
+    template_name = 'contest/contest_participant_registration.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['contest'] = get_object_or_404(
+            Contest, id=self.kwargs.get('id', None)
+        )
+        context['form'] = ContestParticipantRegistration
+        return context
+
+
+class ContestParticipantRegistrationFormHandle: pass
+
+
+class ContestParticipantTaskListView: pass
+
+
+class ContestParticipantTaskDetailView: pass
+
+
+class ContestParticipantSendSolutionFileView: pass
+
+
+class ContestParticipantSendCodeView: pass
+
+
+class ContestParticipantSolutionSendFormHandle: pass
+
+
+class ContestParticipantSolutionListView: pass
+
+
+class ContestParticipantSolutionDetailView: pass
+
+
+class ContestParticipantScoreboardView: pass

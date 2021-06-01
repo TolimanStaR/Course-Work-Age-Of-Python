@@ -1,0 +1,17 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Новый контест{% endblock %}
+
+{% block course_content %}
+    <div>
+
+    </div>
+    <div>
+        <h3>Создать новый контест</h3>
+        <form action="{% url 'create_contest_success' slug=course.slug %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Создать контест" id="submit">
+        </form>
+    </div>
+{% endblock %}

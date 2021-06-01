@@ -37,3 +37,28 @@ class ModuleAdmin(admin.ModelAdmin):
 @admin.register(Content)
 class ContentAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(CourseTask)
+class CourseTaskAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(CourseSolution)
+class CourseSolutionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Contest)
+class ContestAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ContestParticipant)
+class ContestParticipantAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ContestSolution)
+class ContestSolutionAdmin(admin.ModelAdmin):
+    pass

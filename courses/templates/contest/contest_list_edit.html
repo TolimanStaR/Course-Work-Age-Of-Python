@@ -1,0 +1,15 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Контесты{% endblock %}
+
+{% block course_content %}
+    <div>
+        <h3>Соревнования на курсе {{ course.title }}</h3>
+        {% for contest in object_list %}
+            <p>{{ contest.title }} <a href="{% url 'update_contest' slug=course.slug id=contest.id %}">Настройки</a> <a href="{%  url 'contest_edit_tasks' slug=course.slug id=contest.id %}">Задачи</a></p>
+        {% empty %}
+            <p>Нет соревнований</p>
+        {% endfor %}
+        <p><a href="{% url 'create_contest' slug=course.slug %}">Добавить соревнование</a></p>
+    </div>
+{% endblock %}

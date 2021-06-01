@@ -267,6 +267,8 @@ class CourseTask(AbstractTask):
     show_in_task_list = models.BooleanField(default=False)
     solution_file_raw = models.FileField(default=None, upload_to='course_files/')
     solution_file_lang = models.TextField(choices=Language.choices, default=Language.GNU_CXX_14)
+    last_validate_solution = models.OneToOneField(to='CourseSolution', blank=True, default=None,
+                                                  on_delete=models.DO_NOTHING, null=True)
 
 
 class CourseSolution(Solution):
@@ -300,6 +302,8 @@ class ContestParticipant(models.Model):
                                 on_delete=models.CASCADE,
                                 default=None)
     user = models.ForeignKey(to=User, related_name='participated', on_delete=models.CASCADE, default=None)
+    deleted = models.BooleanField(default=False)
+    delete_reason = models.TextField(default='', blank=True)
 
 
 class ContestSolution(Solution):
@@ -307,3 +311,4 @@ class ContestSolution(Solution):
                                     related_name='contest_solutions',
                                     on_delete=models.CASCADE,
                                     default=None)
+

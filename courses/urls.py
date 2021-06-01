@@ -132,4 +132,48 @@ urlpatterns = [
          CourseTaskTestView.as_view(),
          name='course_task_tests'),
 
+    path('course/<slug:slug>/contest/list/',
+         ContestListView.as_view(),
+         name='contest_list_edit', ),
+
+    path('course/<slug:slug>/contest/create/',
+         ContestCreateView.as_view(),
+         name='create_contest'),
+
+    path('course/<slug:slug>/contest/create_success/',
+         ContestCreateFormHandle.as_view(),
+         name='create_contest_success', ),
+
+    path('course/<slug:slug>/contest/<id>/update/',
+         ContestUpdateView.as_view(),
+         name='update_contest', ),
+
+    path('course/<slug:slug>/contest/<id>/update_tasks/',
+         ContestTaskListEditView.as_view(),
+         name='contest_edit_tasks', ),
+
+    path('course/<slug:slug>/contest/<id>/update_tasks_success/',
+         ContestTaskListFormHandle.as_view(),
+         name='contest_task_list_update_success', ),
+
+    path('course/<slug:slug>/contest/<id>/edit_solutions/',
+         ContestSolutionsListView.as_view(),
+         name='contest_solutions_list', ),
+
+    path('course/<slug:slug>/contest/<id>/edit_solution/<solution_id>/',
+         ContestSolutionDetailView.as_view(),
+         name='contest_solution_detail', ),
+
+    path('course/<slug:slug>/contest/<id>/edit_solution/<solution_id>/rejudge/',
+         ContestActionSolutionRejudgeFormHandle.as_view(),
+         name='rejudge_contest_solution', ),
+
+    path('course/<slug:slug>/contest/<id>/edit_solution/<solution_id>/delete_participant/',
+         ContestActionDeleteParticipantFormHandle.as_view(),
+         name='delete_contest_participant', ),
+
+    path('contest/<id>/registration/',
+         ContestParticipantRegistration.as_view(),
+         name='contest_registration', ),
+
 ]

@@ -1,0 +1,27 @@
+{% extends 'course/course_control_panel_frame.html' %}
+
+{% block title %}Посылка {% endblock %}
+
+{% block course_content %}
+    <div>
+        <h3>Посылка</h3>
+        <p>Автор: {{ solution.participant.user }}</p>
+        <p>Время отправки: {{ solution.created }}</p>
+        <p>Статус проверки: {{ solution.status }}</p>
+        <p>Вердикт: {{ solution.verdict_text }}</p>
+        <p>Код - {{ solution.code_file.language }}</p>
+        <pre>{{ solution.code_file.code }}
+        </pre>
+        <form action="{% url 'rejudge_contest_solution' slug=course.slug id=contest.id solution_id=solution.id %}"
+              method="post">
+            {% csrf_token %}
+            <input type="submit" value="Отправить решение на повторное тестирование">
+        </form>
+        <form action="{% url 'delete_contest_participant' slug=course.slug id=contest.id solution_id=solution.id %}"
+              method="post">
+            {% csrf_token %}
+            {{ action_delete_participant_form.as_p }}
+            <input type="submit" value="Удалить участника {{ solution.participant.user }} с соревнования">
+        </form>
+    </div>
+{% endblock %}

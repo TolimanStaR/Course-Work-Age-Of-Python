@@ -1,3 +1,4 @@
+datetimewidget
 django
 django_hashedfilenamestorage
 Pillow

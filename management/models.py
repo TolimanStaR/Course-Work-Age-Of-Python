@@ -39,6 +39,20 @@ class Language(models.TextChoices):
     JAVA_8 = 'Java8', _('Java 8')
 
 
+lang_extension = {
+    'ASM': 's',
+    'C99': 'c',
+    'C11': 'c',
+    'C++11': 'cpp',
+    'C++14': 'cpp',
+    'C++17': 'cpp',
+    'C++20': 'cpp',
+    'Python2': 'py',
+    'Python3': 'py',
+    'Java8': 'java',
+}
+
+
 class Status(models.TextChoices):
     WAIT_FOR_CHECK = 'WAIT', _('Waiting for check')
     QUEUED = 'QUEUED', _('Queued')

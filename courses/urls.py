@@ -176,4 +176,16 @@ urlpatterns = [
          ContestParticipantRegistration.as_view(),
          name='contest_registration', ),
 
+    path('contest/<id>/registration_success/',
+         ContestParticipantRegistrationFormHandle.as_view(),
+         name='contest_registration_success', ),
+
+    path('contest/<id>/wait/',
+         ContestParticipantWaitRoom.as_view(),
+         name='contest_wait_room', ),
+
+    path('contest/<id>/deleted/',
+         ContestParticipantDeleteView.as_view(),
+         name='contest_participant_deleted', ),
+
 ]

@@ -259,6 +259,7 @@ class VideoLink(ItemBase):
     url = models.URLField()
 
 
+
 class CourseTask(AbstractTask):
     course = models.ForeignKey(to=Course,
                                related_name='tasks',
@@ -269,6 +270,7 @@ class CourseTask(AbstractTask):
     solution_file_lang = models.TextField(choices=Language.choices, default=Language.GNU_CXX_14)
     last_validate_solution = models.OneToOneField(to='CourseSolution', blank=True, default=None,
                                                   on_delete=models.DO_NOTHING, null=True)
+    difficulty = models.IntegerField(default=1)
 
 
 class CourseSolution(Solution):
@@ -302,8 +304,12 @@ class ContestParticipant(models.Model):
                                 on_delete=models.CASCADE,
                                 default=None)
     user = models.ForeignKey(to=User, related_name='participated', on_delete=models.CASCADE, default=None)
+    penalty = models.IntegerField(default=0)
     deleted = models.BooleanField(default=False)
     delete_reason = models.TextField(default='', blank=True)
+
+    class Meta:
+        ordering = ('penalty',)
 
 
 class ContestSolution(Solution):

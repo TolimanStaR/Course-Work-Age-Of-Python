@@ -1,0 +1,14 @@
+{% extends 'contest/contest_participant_frame.html' %}
+
+{% block title %}Посылка {{ solution.id }}{% endblock %}
+
+{% block contest_content %}
+    <div>
+        <p>Время: {{ solution.created }}</p>
+        <p>Задача: <a href="">{{ solution.task }}</a></p>
+        <p>Вердикт: {{ solution.verdict }}</p>
+        <p>Язык: {{ solution.code_file.language }}</p>
+        <pre>{{ solution.code_file.code }}
+    </pre>
+    </div>
+{% endblock %}

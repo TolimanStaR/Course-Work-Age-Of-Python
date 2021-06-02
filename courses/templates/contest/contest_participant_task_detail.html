@@ -1,0 +1,22 @@
+{% extends 'contest/contest_participant_frame.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block contest_content %}
+    <div>
+        <h1>{{ task.title }}</h1>
+        <p>{{ task.task_description|linebreaks }}</p>
+        <p>{{ task.input_description|linebreaks }}</p>
+        <p>{{ task.output_description|linebreaks }}</p>
+        <table style="border: 1px solid black; border-collapse: collapse;">
+            <tr>
+                <th style="border: 1px solid black;">Пример входных данных</th>
+                <th style="border: 1px solid black;">Пример вывода</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black;">{{ task.input_example|linebreaks }}</td>
+                <td style="border: 1px solid black;">{{ task.output_example|linebreaksbr }}</td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

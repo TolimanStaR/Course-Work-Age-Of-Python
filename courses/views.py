@@ -9,9 +9,12 @@ from django.contrib import messages
 from django.views.generic.base import View, TemplateResponseMixin
 from django.forms.models import modelform_factory
 from django.apps import apps
+import uuid
+
+from django.core.files import File
 
 from .models import *
-from management.models import CodeFile, SolutionEventType, Status, Verdict
+from management.models import CodeFile, SolutionEventType, Status, Verdict, lang_extension
 
 from .forms import *
 
@@ -693,6 +696,7 @@ class CourseTaskUpdateView(UpdateView):
         'solution_file_raw',
         'solution_file_lang',
         'show_in_task_list',
+        'difficulty',
     )
 
     def get_object(self, queryset=None):
@@ -1043,37 +1047,266 @@ class ContestActionDeleteParticipantFormHandle(FormView):
 class ContestParticipantRegistration(TemplateView):
     template_name = 'contest/contest_participant_registration.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            if ContestParticipant.objects.filter().count() > 0:
+                return HttpResponseRedirect(
+                    reverse('contest_wait_room', kwargs=self.kwargs)
+                )
+
+        return super(ContestParticipantRegistration, self).dispatch(request, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['contest'] = get_object_or_404(
             Contest, id=self.kwargs.get('id', None)
         )
-        context['form'] = ContestParticipantRegistration
+        context['form'] = ContestParticipantRegistrationForm
+        context['already_participant'] = False
+
+        if self.request.user.is_authenticated:
+            if ContestParticipant.objects.filter(
+                    contest=context['contest'],
+                    user=self.request.user,
+            ).count() > 0:
+                context['already_participant'] = True
         return context
 
 
-class ContestParticipantRegistrationFormHandle: pass
+class ContestParticipantRegistrationFormHandle(FormView):
+    form_class = ContestParticipantRegistrationForm
+    template_name = 'contest/contest_participant_registration.html'
+
+    def form_valid(self, form):
+        participant = ContestParticipant.objects.create(
+            contest=Contest.objects.get(id=self.kwargs['id'],
+                                        user=self.request.user)
+        )
+        participant.save()
+        return super().form_valid(form=form)
+
+    def get_success_url(self):
+        return reverse('contest_wait_room', kwargs=self.kwargs)
 
 
-class ContestParticipantTaskListView: pass
+class ContestParticipantMixin(TemplateView):
+    template_name = ''
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.get_participant().deleted:
+            return HttpResponseRedirect(
+                reverse('contest_participant_deleted', kwargs=self.kwargs)
+            )
+        if self.get_contest().status == ContestStatus.WAIT_FOR_START:
+            return HttpResponseRedirect(
+                reverse('contest_registration', kwargs=self.kwargs)
+            )
+        return super().dispatch(request=request, **kwargs)
+
+    def get_contest(self):
+        return get_object_or_404(
+            Contest, id=self.kwargs.get('id', None)
+        )
+
+    def get_contest_status(self):
+        return self.get_contest().status
+
+    def get_participant(self):
+        return ContestParticipant.objects.get(
+            contest=self.get_contest(),
+            user=self.request.user
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['contest'] = self.get_contest()
+        context['participant'] = self.get_participant()
+        return context
 
 
-class ContestParticipantTaskDetailView: pass
+class ContestParticipantWaitRoom(ContestParticipantMixin):
+    template_name = 'contest/contest_participant_wait_room.html'
 
 
-class ContestParticipantSendSolutionFileView: pass
+class ContestParticipantTaskListView(ListView, ContestParticipantMixin):
+    model = CourseTask
+    template_name = 'contest/contest_participant_task_list.html'
+
+    def get_queryset(self):
+        return self.get_contest().tasks.all()
 
 
-class ContestParticipantSendCodeView: pass
+class ContestParticipantTaskDetailView(DetailView, ContestParticipantMixin):
+    model = CourseTask
+    template_name = 'contest/contest_participant_task_detail.html'
+    context_object_name = 'task'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            CourseTask,
+            id=self.kwargs.get('task_id', None)
+        )
 
 
-class ContestParticipantSolutionSendFormHandle: pass
+class ContestParticipantSendSolutionFileView(ContestParticipantMixin):
+    template_name = 'contest/contest_participant_send_solution.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ContestSolutionSendSolutionForm
+        return context
 
 
-class ContestParticipantSolutionListView: pass
+class ContestParticipantSendCodeView(ContestParticipantMixin):
+    template_name = 'contest/contest_participant_send_solution.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ContestSolutionSendCodeForm
+        return context
 
 
-class ContestParticipantSolutionDetailView: pass
+class ContestParticipantSolutionSendSolutionFileFormHandle(FormView, ContestParticipantMixin):
+    template_name = 'contest/contest_participant_send_solution.html'
+    form_class = ContestSolutionSendSolutionForm
+
+    # noinspection DuplicatedCode
+    def form_valid(self, form):
+        if form.is_valid():
+            code_file = CodeFile.objects.create(
+                file=form.cleaned_data['file'],
+                language=form.cleaned_data['language'],
+                code=form.cleaned_data['file'].read().decode('utf-8'),
+                file_name=form.cleaned_data['file'].name,
+            )
+            code_file.save()
+            solution = ContestSolution.objects.create(
+                participant=self.get_participant(),
+                author=self.get_participant().user,
+                code_file=code_file,
+                task=CourseTask.objects.get(
+                    id=self.kwargs.get('task_id', None),
+                ),
+            )
+            solution.save()
+            self.get_participant().penalty += (datetime.datetime.now() - self.get_contest().start_time).seconds // 60
+            self.get_participant().save()
+            messages.success(self.request, 'Ваше решение отправлено на проверку')
+        else:
+            messages.error(self.request, 'При отправке решения произошла ошибка')
+
+        return super(ContestParticipantSolutionSendSolutionFileFormHandle, self).form_valid(form=form)
+
+    def get_success_url(self):
+        pass
 
 
-class ContestParticipantScoreboardView: pass
+class ContestParticipantSolutionSendCodeFormHandle(FormView, ContestParticipantMixin):
+    template_name = 'contest/contest_participant_send_solution.html'
+    form_class = ContestSolutionSendCodeForm
+
+    def form_valid(self, form):
+        if form.is_valid():
+            file_name = f'{str(uuid.uuid4())}.{lang_extension[form.cleaned_data["language"]]}'
+            file = open(f'media/raw_code/{file_name}', 'w')
+            file.write(form.cleaned_data['code'])
+            file.close()
+            f = File(file=file)
+            code_file = CodeFile.objects.create(
+                file=f,
+                language=form.cleaned_data['language'],
+                code=form.cleaned_data['code'],
+                file_name=file_name,
+            )
+            code_file.save()
+            solution = ContestSolution.objects.create(
+                participant=self.get_participant(),
+                author=self.get_participant().user,
+                code_file=code_file,
+                task=CourseTask.objects.get(
+                    id=self.kwargs.get('task_id', None),
+                ),
+            )
+            solution.save()
+            self.get_participant().penalty += (datetime.datetime.now() - self.get_contest().start_time).seconds // 60
+            self.get_participant().save()
+            messages.success(self.request, 'Ваш код отправлен на проверку')
+        else:
+            messages.error(self.request, 'При отправке кода произошла ошибка')
+        return super(ContestParticipantSolutionSendCodeFormHandle, self).form_valid(form=form)
+
+    def get_success_url(self):
+        pass
+
+
+class ContestParticipantSolutionListView(ListView, ContestParticipantMixin):
+    model = ContestSolution
+    template_name = 'contest/contest_participant_solution_list.html'
+
+    def get_queryset(self):
+        qs = ContestSolution.objects.all()
+        return qs.filter(
+            participant=self.get_participant(),
+            participant__contest=self.get_contest(),
+        )
+
+
+class ContestParticipantSolutionDetailView(DetailView, ContestParticipantMixin):
+    model = ContestSolution
+    template_name = 'contest/contest_participant_solution_detail.html'
+    context_object_name = 'solution'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            ContestSolution,
+            id=self.kwargs.get('solution_id', None),
+        )
+
+
+class ContestParticipantScoreboardView(ContestParticipantMixin):
+    class TableElement:
+        def __init__(self):
+            self.is_solved = None
+            self.try_count = None
+            self.points = None
+
+    class User:
+        def __init__(self):
+            self.username = None
+            self.stats = None
+            self.task_solved = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        participants = ContestParticipant.objects.filter(
+            contest=self.get_contest(),
+        )
+        tasks = self.get_contest().tasks.all()
+        table = []
+        for participant in participants:
+            user = self.User()
+            user.username = participant.user.username
+            stats = [self.TableElement() for _ in range(len(tasks))]
+            solved_cnt = 0
+            for i in range(len(tasks)):
+                solutions = ContestSolution.objects.filter(
+                    participant=participant,
+                    task=tasks[i],
+                )
+                stats[i].try_count = len(solutions)
+                stats[i].points = max([s.points for s in solutions] + [-1])
+                stats[i].is_solved = True if Verdict.CORRECT_SOLUTION in [s.verdict for s in solutions] else False
+                if stats[i].is_solved:
+                    solved_cnt += 1
+            user.stats = stats
+            user.task_solved = solved_cnt
+            table.append(user)
+
+        table.sort(key=lambda x: x.task_solved, reverse=True)
+        context['table'] = table
+        return context
+
+
+class ContestParticipantDeleteView(ContestParticipantMixin):
+    template_name = 'contest/contest_participant_deleted.html'

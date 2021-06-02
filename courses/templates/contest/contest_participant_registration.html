@@ -4,6 +4,18 @@
 
 {% block content %}
     <div>
-
+        <h3>Регистация на контест</h3>
+        {% if user.is_authenticated %}
+            {% if not already_participant %}
+                <form action="{% url 'contest_registration_success' id=contest.id %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" value="Зарегистрироваться">
+                </form>
+            {% else %}
+                <p>Вы уже зарегистрированы на соревнование</p>
+            {% endif %}
+        {% else %}
+        {% endif %}
     </div>
 {% endblock %}

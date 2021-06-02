@@ -1,0 +1,18 @@
+{% extends 'contest/contest_participant_frame.html' %}
+
+{% block title %}Отправить решение{% endblock %}
+
+{% block contest_content %}
+    {% if participant %}
+        <div>
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Отправить решение">
+            </form>
+        </div>
+    {% else %}
+        <p>Чтобы отправить решение, <a href="{% url 'contest_registration' id=contest.id %}">зарегистрируйтесь на
+            соревнование</a></p>
+    {% endif %}
+{% endblock %}

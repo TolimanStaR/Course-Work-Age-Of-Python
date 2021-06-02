@@ -1,0 +1,10 @@
+{% extends 'index.html' %}
+
+{% block title %}Комната ожидания{% endblock %}
+
+{% block content %}
+    <div>
+        <h3>Вы были удалены с соревнования</h3>
+        <p> Причина: {{ participant.delete_reason }}</p>
+    </div>
+{% endblock %}

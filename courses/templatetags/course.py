@@ -9,3 +9,10 @@ def model_name(obj):
         return obj._meta.model_name
     except AttributeError:
         return None
+
+@register.filter
+def index(obj, index):
+    try:
+        return obj[index]
+    except AttributeError:
+        return None

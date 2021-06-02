@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+
+{% block title %}Комната ожидания{% endblock %}
+
+{% block content %}
+    <div>
+        <h3>Соревнование еще не началось.</h3>
+        {% if not participant %}
+            <p>Вы еще не зарегистрировались на соревнование. <a href="{% url 'contest_registration' id=contest.id %}">Зарегистрироваться</a>
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

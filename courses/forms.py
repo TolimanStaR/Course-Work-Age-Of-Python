@@ -100,6 +100,7 @@ class CourseTaskForm(forms.ModelForm):
             'solution_file_raw',
             'solution_file_lang',
             'show_in_task_list',
+            'difficulty',
         )
 
 
@@ -143,5 +144,15 @@ class ContestActionDeleteParticipant(forms.Form):
     reason = forms.CharField()
 
 
-class ContestParticipantRegistration(forms.Form):
+class ContestParticipantRegistrationForm(forms.Form):
     pass
+
+
+class ContestSolutionSendSolutionForm(forms.Form):
+    language = forms.ChoiceField(choices=Language.choices)
+    file = forms.FileField()
+
+
+class ContestSolutionSendCodeForm(forms.Form):
+    language = forms.ChoiceField(choices=Language.choices)
+    code = forms.CharField(widget=forms.Textarea)

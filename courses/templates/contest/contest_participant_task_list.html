@@ -1,0 +1,12 @@
+{% extends 'contest/contest_participant_frame.html' %}
+
+{% block title %}Список задач{% endblock %}
+
+{% block contest_content %}
+    <div>
+    <h3>Список задач</h3>
+    {% for task in contest.tasks.all %}
+        <p><a href="">{{ task.title }}</a></p>
+    {% endfor %}
+    </div>
+{% endblock %}

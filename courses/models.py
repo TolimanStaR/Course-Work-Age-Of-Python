@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 
@@ -105,9 +106,16 @@ class Course(models.Model):
     # preview image at the courses list
 
     main_picture = models.ImageField(upload_to='course_main_pictures/', blank=True)
+
     # picture at the course main page
 
-    # students = models.ManyToManyField(to=User, related_name='courses', blank=True)
+    def get_theme(self):
+        d = dict()
+        for elem in CourseThemes.choices:
+            d[elem[0]] = elem[1]
+        return d[self.theme]
+
+    ###### students = models.ManyToManyField(to=User, related_name='courses', blank=True)
 
     # query of students at the course
 
@@ -122,6 +130,7 @@ class Student(models.Model):
     course = models.ForeignKey(to=Course, related_name='students', on_delete=models.DO_NOTHING)
     user = models.ForeignKey(to=User, related_name='courses', on_delete=models.DO_NOTHING)
     created = models.DateTimeField(default=now, editable=False)
+    cur_module = models.PositiveIntegerField(default=1)
 
     class Meta:
         ordering = ('-created',)
@@ -232,7 +241,14 @@ class ItemBase(models.Model):
     # date of object creation
 
     uploaded = models.DateTimeField(auto_now=True)
+
     # time of object uploading
+
+    def render(self):
+        return render_to_string(
+            f'module/content/{self._meta.model_name}.html',
+            {'item': self}
+        )
 
 
 class PureText(ItemBase):

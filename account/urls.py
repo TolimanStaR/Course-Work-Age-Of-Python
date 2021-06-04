@@ -78,4 +78,8 @@ urlpatterns = [
     path('user_list/',
          UserList.as_view(),
          name='user_list'),
+
+    path('profile/<str:username>/subscribes/',
+         MySubscribesView.as_view(),
+         name='subscribes', ),
 ]

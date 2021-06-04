@@ -10,6 +10,8 @@ from django.views.generic.base import View, TemplateResponseMixin
 from django.forms.models import modelform_factory
 from django.apps import apps
 import uuid
+from django.utils import timezone
+from django.http import JsonResponse
 
 from django.core.files import File
 
@@ -405,6 +407,7 @@ class CourseJoinFormHandle(FormView):
         new_student = Student.objects.create(
             course=course,
             user=user,
+            cur_module=1,
         )
         new_student.save()
         return super().form_valid(form)
@@ -1048,11 +1051,21 @@ class ContestParticipantRegistration(TemplateView):
     template_name = 'contest/contest_participant_registration.html'
 
     def dispatch(self, request, *args, **kwargs):
+        contest = Contest.objects.get(id=self.kwargs.get('id', None))
         if self.request.user.is_authenticated:
-            if ContestParticipant.objects.filter().count() > 0:
-                return HttpResponseRedirect(
-                    reverse('contest_wait_room', kwargs=self.kwargs)
-                )
+
+            if ContestParticipant.objects.filter(
+                    user=self.request.user,
+                    contest=Contest.objects.get(id=self.kwargs.get('id', None))
+            ).count() > 0:
+                if contest.status == ContestStatus.WAIT_FOR_START:
+                    return HttpResponseRedirect(
+                        reverse('contest_wait_room', kwargs=self.kwargs)
+                    )
+                else:
+                    return HttpResponseRedirect(
+                        reverse('contest_participant_task_list', kwargs=self.kwargs)
+                    )
 
         return super(ContestParticipantRegistration, self).dispatch(request, **kwargs)
 
@@ -1079,28 +1092,34 @@ class ContestParticipantRegistrationFormHandle(FormView):
 
     def form_valid(self, form):
         participant = ContestParticipant.objects.create(
-            contest=Contest.objects.get(id=self.kwargs['id'],
-                                        user=self.request.user)
+            contest=Contest.objects.get(id=self.kwargs['id'], ),
+            user=self.request.user,
         )
         participant.save()
         return super().form_valid(form=form)
 
     def get_success_url(self):
-        return reverse('contest_wait_room', kwargs=self.kwargs)
+        return reverse('contest_participant_task_list', kwargs=self.kwargs)
 
 
 class ContestParticipantMixin(TemplateView):
+    object_list = None
+    # object = None
     template_name = ''
 
     def dispatch(self, request, *args, **kwargs):
-        if self.get_participant().deleted:
-            return HttpResponseRedirect(
-                reverse('contest_participant_deleted', kwargs=self.kwargs)
-            )
-        if self.get_contest().status == ContestStatus.WAIT_FOR_START:
-            return HttpResponseRedirect(
-                reverse('contest_registration', kwargs=self.kwargs)
-            )
+        try:
+            if self.get_participant().deleted:
+                return HttpResponseRedirect(
+                    reverse('contest_participant_deleted', kwargs=self.kwargs)
+                )
+        except ObjectDoesNotExist:
+            pass
+        # if self.get_contest().status == ContestStatus.WAIT_FOR_START:
+        #     if self.request.path_info != reverse('contest_wait_room', kwargs=self.kwargs):
+        #         return HttpResponseRedirect(
+        #             reverse('contest_wait_room', kwargs=self.kwargs)
+        #         )
         return super().dispatch(request=request, **kwargs)
 
     def get_contest(self):
@@ -1120,7 +1139,10 @@ class ContestParticipantMixin(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['contest'] = self.get_contest()
-        context['participant'] = self.get_participant()
+        try:
+            context['participant'] = self.get_participant()
+        except ObjectDoesNotExist:
+            context['participant'] = None
         return context
 
 
@@ -1147,6 +1169,10 @@ class ContestParticipantTaskDetailView(DetailView, ContestParticipantMixin):
             id=self.kwargs.get('task_id', None)
         )
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
 
 class ContestParticipantSendSolutionFileView(ContestParticipantMixin):
     template_name = 'contest/contest_participant_send_solution.html'
@@ -1154,15 +1180,20 @@ class ContestParticipantSendSolutionFileView(ContestParticipantMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = ContestSolutionSendSolutionForm
+        # print(dir(context['form']))
+        # print(dir(context['form'].declared_fields['task']))
+        context['form'].declared_fields['task'].queryset = self.get_contest().tasks.all()
+        # context['form'].fields['task'].queryset = self.get_contest().tasks.all()
         return context
 
 
 class ContestParticipantSendCodeView(ContestParticipantMixin):
-    template_name = 'contest/contest_participant_send_solution.html'
+    template_name = 'contest/contest_participant_send_code.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = ContestSolutionSendCodeForm
+        context['form'].declared_fields['task'].queryset = self.get_contest().tasks.all()
         return context
 
 
@@ -1184,12 +1215,11 @@ class ContestParticipantSolutionSendSolutionFileFormHandle(FormView, ContestPart
                 participant=self.get_participant(),
                 author=self.get_participant().user,
                 code_file=code_file,
-                task=CourseTask.objects.get(
-                    id=self.kwargs.get('task_id', None),
-                ),
+                task=form.cleaned_data['task'],
             )
             solution.save()
-            self.get_participant().penalty += (datetime.datetime.now() - self.get_contest().start_time).seconds // 60
+            self.get_participant().penalty += (datetime.datetime.now(
+                datetime.timezone.utc) - self.get_contest().start_time).seconds // 60
             self.get_participant().save()
             messages.success(self.request, 'Ваше решение отправлено на проверку')
         else:
@@ -1198,13 +1228,14 @@ class ContestParticipantSolutionSendSolutionFileFormHandle(FormView, ContestPart
         return super(ContestParticipantSolutionSendSolutionFileFormHandle, self).form_valid(form=form)
 
     def get_success_url(self):
-        pass
+        return reverse('contest_participant_solution_list', kwargs=self.kwargs)
 
 
 class ContestParticipantSolutionSendCodeFormHandle(FormView, ContestParticipantMixin):
-    template_name = 'contest/contest_participant_send_solution.html'
+    template_name = 'contest/contest_participant_send_code.html'
     form_class = ContestSolutionSendCodeForm
 
+    # noinspection DuplicatedCode
     def form_valid(self, form):
         if form.is_valid():
             file_name = f'{str(uuid.uuid4())}.{lang_extension[form.cleaned_data["language"]]}'
@@ -1212,23 +1243,24 @@ class ContestParticipantSolutionSendCodeFormHandle(FormView, ContestParticipantM
             file.write(form.cleaned_data['code'])
             file.close()
             f = File(file=file)
+            f.open('r')
             code_file = CodeFile.objects.create(
                 file=f,
                 language=form.cleaned_data['language'],
                 code=form.cleaned_data['code'],
                 file_name=file_name,
             )
+            f.close()
             code_file.save()
             solution = ContestSolution.objects.create(
                 participant=self.get_participant(),
                 author=self.get_participant().user,
                 code_file=code_file,
-                task=CourseTask.objects.get(
-                    id=self.kwargs.get('task_id', None),
-                ),
+                task=form.cleaned_data['task'],
             )
             solution.save()
-            self.get_participant().penalty += (datetime.datetime.now() - self.get_contest().start_time).seconds // 60
+            self.get_participant().penalty += (datetime.datetime.now(
+                datetime.timezone.utc) - self.get_contest().start_time).seconds // 60
             self.get_participant().save()
             messages.success(self.request, 'Ваш код отправлен на проверку')
         else:
@@ -1236,7 +1268,7 @@ class ContestParticipantSolutionSendCodeFormHandle(FormView, ContestParticipantM
         return super(ContestParticipantSolutionSendCodeFormHandle, self).form_valid(form=form)
 
     def get_success_url(self):
-        pass
+        return reverse('contest_participant_solution_list', kwargs=self.kwargs)
 
 
 class ContestParticipantSolutionListView(ListView, ContestParticipantMixin):
@@ -1245,10 +1277,15 @@ class ContestParticipantSolutionListView(ListView, ContestParticipantMixin):
 
     def get_queryset(self):
         qs = ContestSolution.objects.all()
+        print(qs)
         return qs.filter(
             participant=self.get_participant(),
             participant__contest=self.get_contest(),
         )
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        return super().get(request, *args, **kwargs)
 
 
 class ContestParticipantSolutionDetailView(DetailView, ContestParticipantMixin):
@@ -1262,8 +1299,14 @@ class ContestParticipantSolutionDetailView(DetailView, ContestParticipantMixin):
             id=self.kwargs.get('solution_id', None),
         )
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
 
 class ContestParticipantScoreboardView(ContestParticipantMixin):
+    template_name = 'contest/contest_participant_scoreboard.html'
+
     class TableElement:
         def __init__(self):
             self.is_solved = None
@@ -1273,8 +1316,10 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
     class User:
         def __init__(self):
             self.username = None
-            self.stats = None
+            self.stats: ContestParticipantScoreboardView.TableElement = None
             self.task_solved = None
+            self.points = 0
+            self.type = 0
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1283,12 +1328,14 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
             contest=self.get_contest(),
         )
         tasks = self.get_contest().tasks.all()
+        context['tasks'] = tasks
         table = []
         for participant in participants:
             user = self.User()
             user.username = participant.user.username
             stats = [self.TableElement() for _ in range(len(tasks))]
             solved_cnt = 0
+            points = 0
             for i in range(len(tasks)):
                 solutions = ContestSolution.objects.filter(
                     participant=participant,
@@ -1296,17 +1343,136 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
                 )
                 stats[i].try_count = len(solutions)
                 stats[i].points = max([s.points for s in solutions] + [-1])
+                points += stats[i].points
                 stats[i].is_solved = True if Verdict.CORRECT_SOLUTION in [s.verdict for s in solutions] else False
                 if stats[i].is_solved:
                     solved_cnt += 1
             user.stats = stats
             user.task_solved = solved_cnt
+            user.points = points
+            if context['contest'].status == ContestStatus.FINISHED:
+                user.type = 1
             table.append(user)
-
         table.sort(key=lambda x: x.task_solved, reverse=True)
         context['table'] = table
         return context
 
 
-class ContestParticipantDeleteView(ContestParticipantMixin):
+class ContestParticipantDeleteView(TemplateView):
     template_name = 'contest/contest_participant_deleted.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['participant'] = ContestParticipant.objects.get(
+            contest=Contest.objects.get(id=self.kwargs['id']),
+            user=self.request.user,
+        )
+        return context
+
+
+def contest_condition_update_view(request, id):
+    contest = Contest.objects.get(id=id)
+    now_time = timezone.now() + datetime.timedelta(hours=3)
+    start = contest.start_time + datetime.timedelta(hours=3)
+    finish = contest.start_time + contest.duration + datetime.timedelta(hours=3)
+    data = {
+        'contest_status': 'wait_for_start',
+        'alert_action': 0,
+        'alert_message': None,
+        'timer': None,
+    }
+    if now_time < start:
+        if contest.status == ContestStatus.WAIT_FOR_START:
+            pass
+        else:
+            contest.status = ContestStatus.WAIT_FOR_START
+    if start <= now_time <= finish:
+        if contest.status == ContestStatus.ACTIVE:
+            pass
+        else:
+            contest.status = ContestStatus.ACTIVE
+            data['contest_status'] = 'active'
+            data['alert_action'] = 1
+            data['alert_message'] = 'Соревнование началось'
+            data['timer'] = str(now_time - start)
+
+    if finish < now_time:
+        if contest.status == ContestStatus.FINISHED:
+            pass
+        else:
+            contest.status = ContestStatus.FINISHED
+            data['contest_status'] = 'finished'
+            data['alert_action'] = 2
+            data['alert_message'] = 'Соревнование закончилось'
+            data['timer'] = 'Время истекло'
+
+    contest.save()
+    return JsonResponse(data, status=200)
+
+
+# Here starts views which are handle user's interface requests
+
+
+class CourseListView(ListView):
+    model = Course
+    template_name = 'course/course_student_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['channel'] = get_object_or_404(
+            Channel,
+            slug=self.kwargs.get('slug', None),
+        )
+        return context
+
+    def get_queryset(self):
+        qs = Course.objects.all()
+        channel = get_object_or_404(
+            Channel,
+            slug=self.kwargs.get('slug', None),
+        )
+        return qs.filter(channel=channel)
+
+
+class CourseModuleDetailView(DetailView):
+    model = Module
+    template_name = 'module/module.html'
+    context_object_name = 'module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(
+            Course,
+            slug=self.kwargs.get('slug', None)
+        )
+        context['prev_module'] = None if Module.objects.filter(course=
+                                                               context['course'],
+                                                               order=
+                                                               context[
+                                                                   'course'].order - 1).count() == 0 else Module.objects.get(
+            course=context['course'], order=context['course'].order - 1)
+        context['next_module'] = None if Module.objects.filter(course=
+                                                               context['course'],
+                                                               order=
+                                                               context[
+                                                                   'course'].order + 1).count() == 0 else Module.objects.get(
+            course=context['course'], order=context['course'].order + 1)
+        return context
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get('slug', None)
+        order = self.kwargs.get('order', None)
+        return get_object_or_404(
+            Module,
+            course=Course.objects.get(slug=slug),
+            order=order,
+        )
+
+
+class CourseTaskListView: pass
+
+
+class CourseTaskDetailView: pass
+
+
+class CourseTaskSendSolutionFormHandle: pass

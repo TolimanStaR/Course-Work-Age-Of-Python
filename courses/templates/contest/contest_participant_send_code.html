@@ -5,7 +5,7 @@
 {% block contest_content %}
     {% if participant %}
         <div>
-            <form action="{% url 'contest_participant_send_solution_success' id=contest.id %}" method="post" enctype="multipart/form-data">
+            <form action="{% url 'contest_participant_send_code_success' id=contest.id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <input type="submit" value="Отправить решение">

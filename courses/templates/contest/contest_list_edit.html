@@ -6,7 +6,7 @@
     <div>
         <h3>Соревнования на курсе {{ course.title }}</h3>
         {% for contest in object_list %}
-            <p>{{ contest.title }} <a href="{% url 'update_contest' slug=course.slug id=contest.id %}">Настройки</a> <a href="{%  url 'contest_edit_tasks' slug=course.slug id=contest.id %}">Задачи</a></p>
+            <p>{{ contest.title }} <a href="{% url 'contest_participant_task_list' id=contest.id %}">Перейти</a> <a href="{% url 'contest_solutions_list' slug=course.slug id=contest.id %}">Панель управления</a> <a href="{% url 'update_contest' slug=course.slug id=contest.id %}">Настройки</a> <a href="{%  url 'contest_edit_tasks' slug=course.slug id=contest.id %}">Задачи</a></p>
         {% empty %}
             <p>Нет соревнований</p>
         {% endfor %}

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import views as auth_views
 from django.urls import reverse
 from django.views.generic import DetailView, TemplateView, FormView, ListView
@@ -9,6 +9,7 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views import View
 from django.contrib import messages
 
+from courses.models import Channel
 from .models import UserProfile, User, FriendRequest
 from .forms import UserRegistrationForm, UserEditForm, UserProfileEditForm, FriendRequestForm
 from .forms import AcceptFriendRequestForm, DeclineFriendRequestForm, DeleteFriendForm
@@ -225,3 +226,28 @@ class UserRegisterFormHandle(FormView):
 
     def get_success_url(self):
         return reverse('login', kwargs=self.kwargs)
+
+
+class MySubscribesView(ListView):
+    model = Channel
+    template_name = 'profile/profile_subscribes.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # if not self.request.user.is_authenticated:
+        #     raise Http404
+        return super(MySubscribesView, self).dispatch(request, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_obj'] = get_object_or_404(
+            User,
+            username=self.kwargs.get('username', None)
+        )
+        return context
+
+    def get_queryset(self):
+        user = get_object_or_404(
+            User,
+            username=self.kwargs.get('username', None)
+        )
+        return user.subscribes.all()

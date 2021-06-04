@@ -188,4 +188,65 @@ urlpatterns = [
          ContestParticipantDeleteView.as_view(),
          name='contest_participant_deleted', ),
 
+    # task list:
+
+    path('contest/<id>/tasks/',
+         ContestParticipantTaskListView.as_view(),
+         name='contest_participant_task_list', ),
+
+    # task detail:
+
+    path('contest/<id>/task/<task_id>/',
+         ContestParticipantTaskDetailView.as_view(),
+         name='contest_participant_task_detail', ),
+
+    # solution send:
+
+    path('contest/<id>/send_solution/',
+         ContestParticipantSendSolutionFileView.as_view(),
+         name='contest_participant_send_solution', ),
+
+    # solution send handle:
+
+    path('contest/<id>/send_solution_success/',
+         ContestParticipantSolutionSendSolutionFileFormHandle.as_view(),
+         name='contest_participant_send_solution_success', ),
+
+    # code send:
+
+    path('contest/<id>/send_code/',
+         ContestParticipantSendCodeView.as_view(),
+         name='contest_participant_send_code', ),
+
+    # code send handle:
+
+    path('contest/<id>/send_code_success/',
+         ContestParticipantSolutionSendCodeFormHandle.as_view(),
+         name='contest_participant_send_code_success', ),
+
+    # solution list:
+
+    path('contest/<id>/solutions/',
+         ContestParticipantSolutionListView.as_view(),
+         name='contest_participant_solution_list', ),
+
+    # solution detail:
+
+    path('contest/<id>/solution/<solution_id>/',
+         ContestParticipantSolutionDetailView.as_view(),
+         name='contest_participant_solution_detail', ),
+
+    # scoreboard:
+
+    path('contest/<id>/scoreboard/',
+         ContestParticipantScoreboardView.as_view(),
+         name='contest_participant_scoreboard', ),
+
+    path('contest/<id>/update_condition/',
+         contest_condition_update_view,
+         name='update_contest_condition', ),
+
+    path('channel/<slug:slug>/course_list/',
+         CourseListView.as_view(),
+         name='course_list', ),
 ]

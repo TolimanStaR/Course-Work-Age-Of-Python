@@ -6,21 +6,62 @@
 
 {% block content %}
     {% if contest.status != "WAIT" %}
-        <a href="">Задачи</a>
-        <a href="">Отправить решение</a>
-        <a href="">Написать решение</a>
-        <a href="">Посылки</a>
-        <a href="">Рейтинг</a>
+        <a href="{% url 'contest_participant_task_list' id=contest.id %}">Задачи</a>
+        <a href="{% url 'contest_participant_send_solution' id=contest.id %}">Отправить решение</a>
+        <a href="{% url 'contest_participant_send_code' id=contest.id %}">Написать решение</a>
+        <a href="{% url 'contest_participant_solution_list' id=contest.id %}">Посылки</a>
+        <a href="{% url 'contest_participant_scoreboard' id=contest.id %}">Рейтинг</a>
         {% block contest_content %}
         {% endblock %}
     {% else %}
         <p>Соревнование пока не началось</p>
         {% if participant %}
         {% else %}
-            <p>Чтобы принять участие, <a href="">зарегистрируйтесь</a></p>
+            <p>Чтобы принять участие, <a href="{% url 'contest_registration' id=contest.id %}">зарегистрируйтесь</a></p>
         {% endif %}
     {% endif %}
     <script type="text/javascript">
+        const interval = 1000;
+        function updateContestCondition() {
+            $.ajax({
+                type: 'get',
+                url: '{% url "update_contest_condition" id=contest.id %}',
+                data: {csrfmiddlewaretoken: getCookie('csrftoken')},
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if(data['alert_action']===1) {
+                        alert('Соревнование началось');
+                        document.location.reload();
+                    }
+                    if(data['alert_action']===2) {
+                        alert('Соревнование закончилось');
+                        document.location.reload();
+                    }
+                },
+                complete: function (data) {
+                    setTimeout(updateContestCondition, interval);
+                }
+            });
+        }
+
+        setTimeout(updateContestCondition, interval);
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
     </script>
 {% endblock %}

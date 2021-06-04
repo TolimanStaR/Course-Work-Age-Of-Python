@@ -1,0 +1,82 @@
+>>> BACKEND TASKS START
+
+course task list:
+добавить строчку со статусом проверки задачи
+добавить поле last_validation - Solution класс поле, которое хранит инфу об последней валидации
+
+course test: 
+после каждого обновления тестов делать перевалидацию задачи
+
+course contest:
+
+list view
+
+detail view (~html frame):
+
+html response:
+js: 
+BEFORE->START: reload page
+START->AFTER: reload page
+
+>> to send response to server to update contest status
+
+response ->
+BEFORE:
+
+contest registration
+contest waiting room
+
+START:
+
+views = {
+	task list view,
+	task detail view,
+	solution file send,
+	solution text send,
+	solution list,
+	scoreboard,
+}
+
+for owners:
+control panel:
+foreach "c":
+
+- c edit
+- c watch solution statistics (with rejudge button)
+
+AFTER: 
+
+START.views.add(post-scoreboard ~дорешивание)
+
+
+Exam:
+add model
+add Question child models and create one-to-many relations between it
+add results page for Instructors (course owners)
+
+education :
+
+how to parse latex to png
+add views:
+module (with content rendering)
+
+create html templates graph to show course content (with modules, tasks, contests, exams)
+
+deploy with Nginx
+buy a domain name (age-of-python.ru)
+
+>>> BACKEND TASKS END
+
+>>> FRONT TASKT START
+
+stylesheets for all applications 
+
+>>> FRONT TASKS END
+
+>>> EXTRA TASKS START
+
+- make ajax requests to update solutions status without reloading
+- add a pid killer to AtomicJudge
+-
+
+>>> EXTRA TASKS END

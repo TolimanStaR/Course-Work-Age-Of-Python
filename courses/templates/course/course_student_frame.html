@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+
+{% block title %}{% endblock %}
+
+{# "course" context variable required #}
+
+{% block content %}
+    <div>
+    <h3>{{ course.title }}</h3>
+        <p><a href="">Модули</a>
+            <a href="">Задачи</a>
+            <a href="">Соревнования</a></p>
+        {% block course_student_content %}
+        {% endblock %}
+    </div>
+{% endblock %}

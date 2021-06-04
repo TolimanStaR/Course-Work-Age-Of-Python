@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+
+{% block title %}Курсы{% endblock %}
+
+{% block content %}
+    <div>
+        {% for course in object_list %}
+            <p><a href="{% url 'course' slug=course.slug %}">{{ course.title }}</a> ({{ course.get_theme }})</p>
+        {% empty %}
+            Курсов нет
+        {% endfor %}
+    </div>
+{% endblock %}

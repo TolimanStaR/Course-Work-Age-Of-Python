@@ -6,6 +6,7 @@
     <div>
         <h3>Канал {{ channel.title }}</h3>
         <p>{{ channel.subscribers.count }} подписчиков</p>
+        <p><a href="{% url 'course_list' slug=channel.slug %}">Список курсов</a></p>
         {% if user.is_authenticated %}
             {% if user != channel.owner %}
                 {% if user not in channel.subscribers.all %}
@@ -15,7 +16,8 @@
                         <input type="submit" value="Подписаться">
                     </form>
                 {% else %}
-                    <form action="{% url 'channel_delete_subscribe' slug=channel.slug username=user.username %}" method="post">
+                    <form action="{% url 'channel_delete_subscribe' slug=channel.slug username=user.username %}"
+                          method="post">
                         {% csrf_token %}
                         {{ delete_subscribe_form.as_p }}
                         <input type="submit" value="Отписаться">

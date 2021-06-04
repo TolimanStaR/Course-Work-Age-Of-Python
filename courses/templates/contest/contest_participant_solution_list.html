@@ -6,7 +6,7 @@
     <div>
         <h3>Список посылок</h3>
         {% for solution in object_list %}
-            <p><a href="">[{{ solution.created }}] ({{ solution.id }}) Задача: {{ solution.task }} |
+            <p><a href="{% url 'contest_participant_solution_detail' id=contest.id solution_id=solution.id %}">[{{ solution.created }}] ({{ solution.id }}) Задача: {{ solution.task }} |
                 Вердикт: {{ solution.verdict }}</a></p>
         {% endfor %}
     </div>

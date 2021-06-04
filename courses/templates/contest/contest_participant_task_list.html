@@ -6,7 +6,7 @@
     <div>
     <h3>Список задач</h3>
     {% for task in contest.tasks.all %}
-        <p><a href="">{{ task.title }}</a></p>
+        <p><a href="{% url 'contest_participant_task_detail' id=contest.id task_id=task.id %}">{{ task.title }}</a></p>
     {% endfor %}
     </div>
 {% endblock %}

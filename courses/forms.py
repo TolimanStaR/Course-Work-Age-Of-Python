@@ -149,10 +149,12 @@ class ContestParticipantRegistrationForm(forms.Form):
 
 
 class ContestSolutionSendSolutionForm(forms.Form):
+    task = forms.ModelChoiceField(queryset=CourseTask.objects.all())
     language = forms.ChoiceField(choices=Language.choices)
     file = forms.FileField()
 
 
 class ContestSolutionSendCodeForm(forms.Form):
+    task = forms.ModelChoiceField(queryset=CourseTask.objects.all())
     language = forms.ChoiceField(choices=Language.choices)
     code = forms.CharField(widget=forms.Textarea)

@@ -1,0 +1,13 @@
+{% extends 'profile_frame.html' %}
+
+{% block title %}Подписки{% endblock %}
+
+{% block profile_content %}
+    <div>
+        {% for channel in object_list %}
+            <p><a href="{% url 'channel' slug=channel.slug %}">{{ channel.title }}</a></p>
+        {% empty %}
+            <p>ВЫ ни на что не подписаны</p>
+        {% endfor %}
+    </div>
+{% endblock %}

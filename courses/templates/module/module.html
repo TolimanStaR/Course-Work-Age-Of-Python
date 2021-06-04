@@ -1,0 +1,23 @@
+{% extends 'course/course_student_frame.html' %}
+
+{% block title %}Модуль {{ module.order }}{% endblock %}
+
+{% block course_student_content %}
+    <div>
+        <div>
+            {% for content in module.content_list.all %}
+                {% with item=content.item %}
+                    {{ item.render }}
+                {% endwith %}
+            {% endfor %}
+        </div>
+        <p>
+            {% if prev_module %}
+                <a href="">{{ prev_module.title }}</a>
+            {% endif %}
+            {% if next_module %}
+                <a href="">{{ next_module.title }}</a>
+            {% endif %}
+        </p>
+    </div>
+{% endblock %}

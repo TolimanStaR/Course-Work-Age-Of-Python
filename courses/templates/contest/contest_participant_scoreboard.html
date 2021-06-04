@@ -1,0 +1,32 @@
+{% extends 'contest/contest_participant_frame.html' %}
+
+{% load course %}
+
+{% block title %}Положение участников{% endblock %}
+
+{% block contest_content %}
+    <div>
+        <table>
+            <tr>
+                <th></th>
+                {% for task in tasks %}
+                    <th>{{ task.title }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in table %}
+                {% if row.type == 0 %}
+                    посылка во время соревнования а не дорешивания
+                    <tr>
+                        <td>{{ row.username }}</td>
+                        {% for stat in row.stats %}
+                            <td>{% if stat.is_solved %}+{% if stat.try_count > 1 %}{{ stat.try_count }}{% endif %}
+                                {% else %}{% if stat.try_count > 0 %}-{{ stat.try_count }}{% endif %}{% endif %}
+                                [{{ stat.points }}]
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

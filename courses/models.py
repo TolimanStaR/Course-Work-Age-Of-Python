@@ -261,6 +261,7 @@ class PureText(ItemBase):
 
 class LaTeX(ItemBase):
     file = models.FileField(upload_to='course_LaTeX_files/')
+    text = models.TextField(blank=True, default='')
 
 
 class CodeListing(ItemBase):

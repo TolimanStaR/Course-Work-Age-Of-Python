@@ -535,7 +535,8 @@ class ContentCreateUpdateView(TemplateView, TemplateResponseMixin, View):
                           'codelisting',
                           'picture',
                           'videolink', ]:
-            return apps.get_model(app_label='courses', model_name=model_name)
+            response = apps.get_model(app_label='courses', model_name=model_name)
+            return response
         else:
             raise Http404
 
@@ -554,13 +555,10 @@ class ContentCreateUpdateView(TemplateView, TemplateResponseMixin, View):
         self.course = Course.objects.get(slug=slug)
         self.module = get_object_or_404(Module, course=self.course, order=order)
         self.model = ContentCreateUpdateView.get_model(model_name)
-        if id:
-            self.obj = get_object_or_404(
-                self.model,
-                id=id,
-                owner=self.request.user,
-            )
-        return super(ContentCreateUpdateView, self).dispatch(request, slug, order, model_name)
+        print(self.model.objects.all())
+        if 'id' in self.kwargs:
+            self.obj = self.model.objects.get(id=self.kwargs['id'] - 1)
+        return super(ContentCreateUpdateView, self).dispatch(request, slug, order, model_name, id)
 
     def get(self, request, *args, **kwargs):
         form = ContentCreateUpdateView.get_form(self.model, instance=self.obj)
@@ -578,6 +576,9 @@ class ContentCreateUpdateView(TemplateView, TemplateResponseMixin, View):
             obj.save()
 
             if not id:
+                if self.model == LaTeX:
+                    obj.text = obj.file.read().decode('utf-8')
+                    obj.save()
                 Content.objects.create(module=self.module, item=obj)
 
             return redirect('course_module_content_list', self.course.slug, self.module.order)
@@ -1445,18 +1446,23 @@ class CourseModuleDetailView(DetailView):
             Course,
             slug=self.kwargs.get('slug', None)
         )
+        m = get_object_or_404(
+            Module,
+            course=context['course'],
+            order=self.kwargs.get('order', None),
+        )
         context['prev_module'] = None if Module.objects.filter(course=
                                                                context['course'],
                                                                order=
-                                                               context[
-                                                                   'course'].order - 1).count() == 0 else Module.objects.get(
-            course=context['course'], order=context['course'].order - 1)
+                                                               m.order - 1).count() == 0 else Module.objects.get(
+            course=
+            context['course'], order=m.order - 1)
         context['next_module'] = None if Module.objects.filter(course=
                                                                context['course'],
                                                                order=
-                                                               context[
-                                                                   'course'].order + 1).count() == 0 else Module.objects.get(
-            course=context['course'], order=context['course'].order + 1)
+                                                               m.order + 1).count() == 0 else Module.objects.get(
+            course=
+            context['course'], order=m.order + 1)
         return context
 
     def get_object(self, queryset=None):
@@ -1473,6 +1479,9 @@ class CourseTaskListView: pass
 
 
 class CourseTaskDetailView: pass
+
+
+class CourseSolutionDetailView: pass
 
 
 class CourseTaskSendSolutionFormHandle: pass

@@ -16,7 +16,7 @@
                     {{ course_leave_form.as_p }}
                     <input type="submit" value="Покинуть курс">
                 </form>
-                <p><a href="">Продолжить обучение</a></p>
+                <p><a href="{% url 'module' slug=course.slug order=student.cur_module %}">Продолжить обучение</a></p>
             {% elif course.owner != user %}
                 <form action="{% url 'join_course' slug=course.slug %}" method="post">
                     {% csrf_token %}

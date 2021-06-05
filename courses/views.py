@@ -251,6 +251,10 @@ class CourseDetail(DetailView):  # Main page of the course
             )
             if len(sub_list) > 0:
                 context['is_subscribed'] = True
+                context['student'] = Student.objects.get(
+                    course=obj,
+                    user=self.request.user,
+                )
 
         return context
 
@@ -1507,6 +1511,7 @@ class CourseTaskDetailView(DetailView):
     template_name = 'course/course_student_task_detail.html'
     context_object_name = 'task'
 
+    # noinspection DuplicatedCode
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
@@ -1533,11 +1538,22 @@ class CourseSolutionDetailView(DetailView):
     template_name = 'course/course_student_solution_detail.html'
     context_object_name = 'current_solution'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect(
+                reverse('course_student_task_detail', kwargs={
+                    'slug': self.kwargs.get('slug'),
+                    'task_id': self.kwargs.get('task_id'),
+                })
+            )
+        return super(CourseSolutionDetailView, self).dispatch(self.request, **kwargs)
+
     # noinspection DuplicatedCode
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
         context['solutions'] = None
+        context['form'] = CourseTaskSendSolutionForm
         if self.request.user.is_authenticated:
             if Student.objects.filter(
                     user=self.request.user,

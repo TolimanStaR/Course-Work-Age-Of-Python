@@ -119,19 +119,31 @@ class Test(models.Model):
 
 
 class Solution(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solutions', blank=True)
-    code_file = models.OneToOneField(CodeFile, on_delete=models.CASCADE, related_name='code_file')
+    author = models.ForeignKey(to=User, on_delete=models.CASCADE,
+                               related_name='solutions',
+                               blank=True)
+    code_file = models.OneToOneField(to=CodeFile,
+                                     on_delete=models.CASCADE,
+                                     related_name='code_file')
 
     created = models.DateTimeField(default=datetime.now)
 
-    status = models.TextField(choices=Status.choices, default=Status.WAIT_FOR_CHECK)
-    verdict = models.TextField(choices=Verdict.choices, default=Verdict.EMPTY_VERDICT)
-    verdict_text = models.TextField(blank=True, default='Посылка не проверена')
+    status = models.TextField(choices=Status.choices,
+                              default=Status.WAIT_FOR_CHECK)
+    verdict = models.TextField(choices=Verdict.choices,
+                               default=Verdict.EMPTY_VERDICT)
+    verdict_text = models.TextField(blank=True,
+                                    default='Посылка не проверена')
 
-    task = models.ForeignKey(AbstractTask, on_delete=models.CASCADE, related_name='solutions', default=None, blank=True)
+    task = models.ForeignKey(AbstractTask,
+                             on_delete=models.CASCADE,
+                             related_name='solutions',
+                             default=None,
+                             blank=True)
     node = models.IntegerField(default=1)
 
-    event_type = models.TextField(choices=SolutionEventType.choices, default=SolutionEventType.USER_TASK_SOLUTION)
+    event_type = models.TextField(choices=SolutionEventType.choices,
+                                  default=SolutionEventType.USER_TASK_SOLUTION)
     points = models.IntegerField(default=0)
 
     class Meta:

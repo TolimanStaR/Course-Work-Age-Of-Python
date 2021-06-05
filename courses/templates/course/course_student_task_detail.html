@@ -18,7 +18,6 @@
                 <td style="border: 1px solid black;">{{ task.output_example|linebreaksbr }}</td>
             </tr>
         </table>
-    {{ task.id }}
         {% if user.is_authenticated %}
             <form action="{% url 'course_task_send_solution' slug=course.slug task_id=task.id %}" method="post"
                   enctype="multipart/form-data">

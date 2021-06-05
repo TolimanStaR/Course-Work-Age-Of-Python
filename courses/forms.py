@@ -161,6 +161,6 @@ class ContestSolutionSendCodeForm(forms.Form):
 
 
 class CourseTaskSendSolutionForm(forms.Form):
-    language = forms.ChoiceField(choices=Language.choices)
-    file = forms.FileField(required=False)
-    code = forms.CharField(widget=forms.Textarea, required=False)
+    language = forms.ChoiceField(choices=Language.choices, label='Язык программирования')
+    file = forms.FileField(required=False, label='Файл с кодом')
+    code = forms.CharField(widget=forms.Textarea, required=False, label='Код')

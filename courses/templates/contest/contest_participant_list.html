@@ -1,0 +1,14 @@
+{% extends 'course/course_student_frame.html' %}
+
+{% block title %}Соревнования{% endblock %}
+
+{% block course_student_content %}
+    <div>
+        {% for contest in object_list %}
+            <p><a href="{% url 'contest_participant_task_list' id=contest.id %}">{{ contest.title }}
+                ({{ contest.status }})</a></p>
+        {% empty %}
+            <p>Соревнований нет</p>
+        {% endfor %}
+    </div>
+{% endblock %}

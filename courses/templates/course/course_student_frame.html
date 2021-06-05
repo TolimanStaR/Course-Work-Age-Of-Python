@@ -6,10 +6,10 @@
 
 {% block content %}
     <div>
-    <h3>{{ course.title }}</h3>
-        <p><a href="">Модули</a>
-            <a href="">Задачи</a>
-            <a href="">Соревнования</a></p>
+        <h3>{{ course.title }}</h3>
+        <p><a href="{% url 'module' slug=course.slug order=0 %}">Модули</a>
+            <a href="{% url 'course_student_task_list' slug=course.slug %}">Задачи</a>
+            <a href="{% url 'contest_list' slug=course.slug %}">Соревнования</a></p>
         {% block course_student_content %}
         {% endblock %}
     </div>

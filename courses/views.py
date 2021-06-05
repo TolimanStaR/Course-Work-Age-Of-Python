@@ -1446,11 +1446,24 @@ class CourseModuleDetailView(DetailView):
             Course,
             slug=self.kwargs.get('slug', None)
         )
+
         m = get_object_or_404(
             Module,
             course=context['course'],
             order=self.kwargs.get('order', None),
         )
+        if self.request.user.is_authenticated:
+            if Student.objects.filter(
+                    user=self.request.user,
+                    course=context['course']
+            ).count() > 0:
+                s = Student.objects.get(
+                    user=self.request.user,
+                    course=context['course'],
+                )
+                s.cur_module = self.kwargs.get('order', None)
+                s.save()
+                context['student'] = s
         context['prev_module'] = None if Module.objects.filter(course=
                                                                context['course'],
                                                                order=
@@ -1475,13 +1488,147 @@ class CourseModuleDetailView(DetailView):
         )
 
 
-class CourseTaskListView: pass
+class CourseTaskListView(ListView):
+    model = CourseTask
+    template_name = 'course/course_student_task_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
+        return context
+
+    def get_queryset(self):
+        qs = CourseTask.objects.all()
+        return qs.filter(course=get_object_or_404(Course, slug=self.kwargs.get('slug', None)))
 
 
-class CourseTaskDetailView: pass
+class CourseTaskDetailView(DetailView):
+    model = CourseTask
+    template_name = 'course/course_student_task_detail.html'
+    context_object_name = 'task'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
+        context['solutions'] = None
+        context['form'] = CourseTaskSendSolutionForm
+        if self.request.user.is_authenticated:
+            if Student.objects.filter(
+                    user=self.request.user,
+                    course=context['course']
+            ).count() > 0:
+                context['is_student'] = True
+            context['solutions'] = CourseSolution.objects.filter(
+                course_task=get_object_or_404(CourseTask, id=self.kwargs.get('task_id', None)),
+                author=self.request.user,
+            )
+        return context
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(CourseTask, id=self.kwargs.get('task_id'))
 
 
-class CourseSolutionDetailView: pass
+class CourseSolutionDetailView(DetailView):
+    model = CourseSolution
+    template_name = 'course/course_student_solution_detail.html'
+    context_object_name = 'current_solution'
+
+    # noinspection DuplicatedCode
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
+        context['solutions'] = None
+        if self.request.user.is_authenticated:
+            if Student.objects.filter(
+                    user=self.request.user,
+                    course=context['course']
+            ).count() > 0:
+                context['is_student'] = True
+            context['solutions'] = CourseSolution.objects.filter(
+                course_task=get_object_or_404(CourseTask, id=self.kwargs.get('task_id', None)),
+                author=self.request.user,
+            )
+        context['task'] = get_object_or_404(CourseTask, id=self.kwargs.get('task_id', None))
+        return context
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(CourseSolution, id=self.kwargs.get('solution_id'))
 
 
-class CourseTaskSendSolutionFormHandle: pass
+class CourseTaskSendSolutionFormHandle(FormView):
+    form_class = CourseTaskSendSolutionForm
+    template_name = 'course/course_student_task_detail.html'
+
+    def form_valid(self, form):
+
+        if not self.request.user.is_authenticated:
+            raise Http404
+
+        if form.is_valid():
+            cd = form.cleaned_data
+            file, code, code_file = None, None, None
+            if cd['code'] and not cd['file']:
+                code = cd['code']
+                file_name = f'{str(uuid.uuid4())}.{lang_extension[form.cleaned_data["language"]]}'
+                file__ = open(f'media/raw_code/{file_name}', 'w')
+                file__.write(code)
+                file__.close()
+                file = File(file=file__)
+                file.open('r')
+                code_file = CodeFile.objects.create(
+                    file=file,
+                    language=cd['language'],
+                    code=code,
+                    file_name=file_name,
+                )
+                file.close()
+                code_file.save()
+
+            if cd['file'] and not cd['code']:
+                file = cd['file']
+                code = file.read().decode('utf-8')
+                code_file = CodeFile.objects.create(
+                    file=file,
+                    language=cd['language'],
+                    code=code,
+                    file_name=file.name,
+                )
+
+            if code_file:
+                code_file.save()
+
+                task = get_object_or_404(CourseTask, id=self.kwargs.get('task_id'))
+                solution = CourseSolution.objects.create(
+                    course=get_object_or_404(Course, slug=self.kwargs.get('slug')),
+                    course_task=task,
+                    code_file=code_file,
+                    task=task,
+                    author=self.request.user,
+                )
+                solution.save()
+
+                messages.success(self.request, 'Решение отправлено на проверку')
+
+            else:
+                messages.warning(self.request, 'Необходимо написать код или прикрепить файл')
+
+        else:
+            messages.error(self.request, 'Ошибка при отправке решения')
+        return super().form_valid(form=form)
+
+    def get_success_url(self):
+        return reverse('course_student_task_detail', kwargs=self.kwargs)
+
+
+class ContestStudentListView(ListView):
+    model = Contest
+    template_name = 'contest/contest_participant_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = get_object_or_404(Course, slug=self.kwargs.get('slug', None))
+        return context
+
+    def get_queryset(self):
+        qs = Contest.objects.all()
+        return qs.filter(course=get_object_or_404(Course, slug=self.kwargs.get('slug', None)))

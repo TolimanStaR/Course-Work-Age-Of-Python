@@ -130,7 +130,7 @@ class Student(models.Model):
     course = models.ForeignKey(to=Course, related_name='students', on_delete=models.DO_NOTHING)
     user = models.ForeignKey(to=User, related_name='courses', on_delete=models.DO_NOTHING)
     created = models.DateTimeField(default=now, editable=False)
-    cur_module = models.PositiveIntegerField(default=1)
+    cur_module = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ('-created',)
@@ -274,7 +274,6 @@ class Picture(ItemBase):
 
 class VideoLink(ItemBase):
     url = models.URLField()
-
 
 
 class CourseTask(AbstractTask):

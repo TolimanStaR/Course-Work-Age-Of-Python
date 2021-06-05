@@ -253,4 +253,24 @@ urlpatterns = [
     path('course/<slug:slug>/module/<order>/',
          CourseModuleDetailView.as_view(),
          name='module', ),
+
+    path('course/<slug:slug>/available_task_list/',
+         CourseTaskListView.as_view(),
+         name='course_student_task_list', ),
+
+    path('course/<slug:slug>/task/<int:task_id>/',
+         CourseTaskDetailView.as_view(),
+         name='course_student_task_detail', ),
+
+    path('course/<slug:slug>/task/<int:task_id>/send_solution/',
+         CourseTaskSendSolutionFormHandle.as_view(),
+         name='course_task_send_solution', ),
+
+    path('course/<slug:slug>/task/<int:task_id>/solution/<int:solution_id>/',
+         CourseSolutionDetailView.as_view(),
+         name='course_solution_detail', ),
+
+    path('course/<slug:slug>/contests/',
+         ContestStudentListView.as_view(),
+         name='contest_list', ),
 ]

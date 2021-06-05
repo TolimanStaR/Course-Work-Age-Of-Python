@@ -1,0 +1,41 @@
+{% extends 'course/course_student_frame.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block course_student_content %}
+    <div>
+        <h1>{{ task.title }}</h1>
+        <p>{{ task.task_description|linebreaks }}</p>
+        <p>{{ task.input_description|linebreaks }}</p>
+        <p>{{ task.output_description|linebreaks }}</p>
+        <table style="border: 1px solid black; border-collapse: collapse;">
+            <tr>
+                <th style="border: 1px solid black;">Пример входных данных</th>
+                <th style="border: 1px solid black;">Пример вывода</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black;">{{ task.input_example|linebreaks }}</td>
+                <td style="border: 1px solid black;">{{ task.output_example|linebreaksbr }}</td>
+            </tr>
+        </table>
+    {{ task.id }}
+        {% if user.is_authenticated %}
+            <form action="{% url 'course_task_send_solution' slug=course.slug task_id=task.id %}" method="post"
+                  enctype="multipart/form-data">
+            {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Отправить">
+            </form>
+        {% else %}
+            <p>Чтобы отправить решение, <a href="{% url 'login' %}">войдите</a></p>
+        {% endif %}
+        {% block solution_content %}
+        {% endblock %}
+        {% for solution in solutions %}
+            <p>
+            {{ solution.id }}
+                <a href="{% url 'course_solution_detail' slug=course.slug task_id=task.id solution_id=solution.id %}">{{ solution.created }}</a>
+            </p>
+        {% endfor %}
+    </div>
+{% endblock %}

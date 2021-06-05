@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import views as auth_views
@@ -27,9 +28,17 @@ class Profile(DetailView):
     template_name = 'profile/profile.html'
     model = User
     context_object_name = 'user_obj'
+    object = None
+
+    def dispatch(self, request, *args, **kwargs):
+        a = get_object_or_404(User, username=self.kwargs.get('username'))
+        print(f'{a}\n\n\n\n\n\n\n\n')
+        return super().dispatch(request, **kwargs)
 
     def get_object(self, queryset=None):
-        return User.objects.get(username=self.kwargs['username'])
+
+        user = User.objects.get(username=self.kwargs['username'])
+        return user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

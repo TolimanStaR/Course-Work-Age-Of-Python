@@ -158,3 +158,9 @@ class ContestSolutionSendCodeForm(forms.Form):
     task = forms.ModelChoiceField(queryset=CourseTask.objects.all())
     language = forms.ChoiceField(choices=Language.choices)
     code = forms.CharField(widget=forms.Textarea)
+
+
+class CourseTaskSendSolutionForm(forms.Form):
+    language = forms.ChoiceField(choices=Language.choices)
+    file = forms.FileField(required=False)
+    code = forms.CharField(widget=forms.Textarea, required=False)

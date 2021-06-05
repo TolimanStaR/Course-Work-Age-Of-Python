@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 import sys, os
 from pathlib import Path
 
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-nnp&4rq^33$6o%lwmvv%%th5bp3t$#to^5559p&of1gfx!#%t-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '185.139.70.166',
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'datetimewidget',
     'embed_video',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -152,3 +154,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+

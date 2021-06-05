@@ -7,6 +7,8 @@ from django.views.generic import ListView, DetailView, FormView, TemplateView
 from .models import AbstractTask, Test, Solution, CodeFile
 from .forms import SolutionForm
 
+from django.template import RequestContext
+
 
 # This classes are used for testing only:
 
@@ -72,3 +74,13 @@ class SolutionDetail(DetailView):
         context = super().get_context_data(**kwargs)
         context['code'] = Solution.objects.get(pk=self.kwargs['id']).code_file.code
         return context
+
+
+def handler404(request, exception):
+    data = {}
+    return render(request, '404.html', data)
+
+
+def handler500(request, exception):
+    data = {}
+    return render(request, '500.html', data)

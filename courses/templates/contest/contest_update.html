@@ -1,17 +1,29 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+
+{% load crispy_forms_tags %}
+
 {% block title %}Новый контест{% endblock %}
 
 {% block course_content %}
+
     <div>
 
     </div>
     <div>
         <h3>Создать новый контест</h3>
-        <form action="" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Сохранить настройки" id="submit">
-        </form>
+        <script type="text/javascript">
+            $(function () {
+                $('#datetimepicker1').datetimepicker();
+            });
+        </script>
+        <div>
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-success">Сохранить</button>
+            </form>
+        </div>
     </div>
+
 {% endblock %}

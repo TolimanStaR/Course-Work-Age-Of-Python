@@ -54,11 +54,11 @@ lang_extension = {
 
 
 class Status(models.TextChoices):
-    WAIT_FOR_CHECK = 'WAIT', _('Waiting for check')
-    QUEUED = 'QUEUED', _('Queued')
-    IN_PROGRESS = 'IN PROGRESS', _('In progress')
-    CHECK_FAILED = 'FAILED', _('Check failed')
-    CHECK_SUCCESS = 'SUCCESS', _('Check success')
+    WAIT_FOR_CHECK = 'WAIT', _('Ожидается проверка')
+    QUEUED = 'QUEUED', _('В очереди')
+    IN_PROGRESS = 'IN PROGRESS', _('Проверяется')
+    CHECK_FAILED = 'FAILED', _('Проверка не пройденя')
+    CHECK_SUCCESS = 'SUCCESS', _('Проверка пройдена')
 
 
 class Verdict(models.TextChoices):

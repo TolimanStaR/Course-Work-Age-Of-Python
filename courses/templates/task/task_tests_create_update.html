@@ -1,22 +1,25 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Редактировать тесты{% endblock %}
 
 {% block course_content %}
-    <div>
+    <div style="margin-bottom: 20px">
         <form action="" method="post" enctype="multipart/form-data">
             {{ formset.management_form }}
             <table>
                 {% for form in formset %}
                     {% csrf_token %}
-                    {{ form }}
+                    {{ form|crispy }}
                     {% if form.instance.rigth_answer %}
                         <p>Правильный ответ на тест:</p>
-                        <p>{{ form.instance.right_answer|linebreaks }}</p>
+                        <p>{{ form.instance.right_answer|linebreaks|safe }}</p>
                     {% endif %}
+                    <hr>
                 {% endfor %}
             </table>
-            <input type="submit" value="Сохранить настройки" class="btn btn-primary" data-toggle="modal"
+            <input type="submit" value="Сохранить настройки" class="btn btn-success" data-toggle="modal"
                    data-target="#exampleModal">
         </form>
     </div>

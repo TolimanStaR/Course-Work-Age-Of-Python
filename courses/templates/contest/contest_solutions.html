@@ -7,7 +7,18 @@
         <h3>Все посылки</h3>
         {% for solution in object_list %}
             <p>[{{ solution.created }}] Посылка №{{ forloop.counter }} участника {{ solution.participant.user }} <a
-                    href="{% url 'contest_solution_detail' slug=course.slug id=contest.id solution_id=solution.id %}">Подробно</a></p>
+                    href="{% url 'contest_solution_detail' slug=course.slug id=contest.id solution_id=solution.id %}">Подробно</a>
+            </p>
+            <div class="card" style="margin-bottom: 20px">
+                <h5 class="card-header">[{{ solution.created }}] Посылка №{{ forloop.counter }}
+                    участника {{ solution.participant.user }}</h5>
+                <div class="card-body">
+                    <p>Статус посылки: {{ solution.status }}</p>
+                    <p>Вердикт посылки: {{ solution.verdict }}</p>
+                    <a href="{% url 'contest_solution_detail' slug=course.slug id=contest.id solution_id=solution.id %}"
+                       class="btn-success btn">Подробно</a>
+                </div>
+            </div>
         {% empty %}
             <p>Пока что посылок нет</p>
         {% endfor %}

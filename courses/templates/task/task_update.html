@@ -1,14 +1,16 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Новая задача{% endblock %}
 
 {% block course_content %}
-    <div>
+    <div style="margin-bottom: 20px">
         <h3>Заполните данные о задаче</h3>
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Сохранить">
+            {{ form|crispy }}
+            <input type="submit" value="Сохранить" class="btn-success btn">
         </form>
     </div>
 {% endblock %}

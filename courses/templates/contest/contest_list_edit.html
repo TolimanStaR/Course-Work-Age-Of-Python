@@ -3,13 +3,21 @@
 {% block title %}Контесты{% endblock %}
 
 {% block course_content %}
-    <div>
+    <div style="margin-bottom: 20px">
         <h3>Соревнования на курсе {{ course.title }}</h3>
         {% for contest in object_list %}
-            <p>{{ contest.title }} <a href="{% url 'contest_participant_task_list' id=contest.id %}">Перейти</a> <a href="{% url 'contest_solutions_list' slug=course.slug id=contest.id %}">Панель управления</a> <a href="{% url 'update_contest' slug=course.slug id=contest.id %}">Настройки</a> <a href="{%  url 'contest_edit_tasks' slug=course.slug id=contest.id %}">Задачи</a></p>
+            <div class="card" style="margin-bottom: 20px">
+                <h5 class="card-header">{{ contest.title }} <a style="color: #5f5f5f"><i class="bi bi-clock"></i> Начало: {{ contest.start_time }}, продолжительность {{ contest.duration }}</a></h5>
+                <div class="card-body">
+                    <a href="{% url 'contest_participant_task_list' id=contest.id %}" class="btn btn-success">Перейти</a> <a
+                    href="{% url 'contest_solutions_list' slug=course.slug id=contest.id %}" class="btn btn-outline-success">Панель управления</a> <a
+                    href="{% url 'update_contest' slug=course.slug id=contest.id %}" class="btn btn-outline-success">Настройки</a> <a
+                    href="{% url 'contest_edit_tasks' slug=course.slug id=contest.id %}" class="btn btn-outline-success">Задачи</a>
+                </div>
+            </div>
         {% empty %}
             <p>Нет соревнований</p>
         {% endfor %}
-        <p><a href="{% url 'create_contest' slug=course.slug %}">Добавить соревнование</a></p>
+        <p><a href="{% url 'create_contest' slug=course.slug %}" class="btn-success btn">Добавить соревнование</a></p>
     </div>
 {% endblock %}

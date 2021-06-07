@@ -1,17 +1,19 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Новый контест{% endblock %}
 
 {% block course_content %}
     <div>
 
     </div>
-    <div>
-        <h3>Создать новый контест</h3>
+    <div style="margin-bottom: 20px">
+        <h3>Настройки соревнования</h3>
         <form action="{% url 'create_contest_success' slug=course.slug %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Создать контест" id="submit">
+            {{ form|crispy }}
+            <input type="submit" value="Создать контест" id="submit" class="btn-success btn">
         </form>
     </div>
 {% endblock %}

@@ -10,7 +10,7 @@ from django.utils.timezone import now
 
 from management.fields import OrderField
 
-from management.models import AbstractTask, Test, Solution, Language
+from management.models import AbstractTask, Test, Solution, Language, Status
 
 
 class Channel(models.Model):
@@ -298,6 +298,12 @@ class CourseSolution(Solution):
                                on_delete=models.DO_NOTHING)
     course_task = models.ForeignKey(to=CourseTask, related_name='course_solutions', on_delete=models.CASCADE,
                                     default=None)
+
+    def get_status(self):
+        d = dict()
+        for elem in Status.choices:
+            d[elem[0]] = elem[1]
+        return d[self.status]
 
 
 class ContestStatus(models.TextChoices):

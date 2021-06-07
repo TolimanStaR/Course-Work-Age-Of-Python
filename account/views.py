@@ -83,6 +83,7 @@ class FriendRequestFormHandle(FormView, GetUserInfoMixin):
             to_user=UserProfile.objects.get(user=User.objects.get(username=self.kwargs['username']))
         )
         new_request.save()
+        messages.success(self.request, 'Заявка в друзья отправлена')
         return super().form_valid(form)
 
     def get_success_url(self):

@@ -1,14 +1,18 @@
 {% extends 'profile_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Изменить профиль{% endblock %}
 
 {% block profile_content %}
     <div>
-        <form action="" method="post" enctype="multipart/form-data">
-            {{ user_form.as_p }}
-            {{ user_profile_form.as_p }}
-            {% csrf_token %}
-            <p><input type="submit" value="Сохранить"></p>
-        </form>
+        <div>
+            <form action="" method="post" enctype="multipart/form-data">
+                {{ user_form|crispy }}
+                {{ user_profile_form|crispy }}
+                {% csrf_token %}
+                <p><input type="submit" value="Сохранить данные" class="btn-success btn"></p>
+            </form>
+        </div>
     </div>
 {% endblock %}

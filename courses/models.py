@@ -148,7 +148,7 @@ class Module(models.Model):
     description = models.TextField(blank=True)
     # some information about module content
 
-    order = OrderField(blank=True, for_fields=['course'])
+    order = OrderField(blank=True, for_fields=['course'], default=1)
 
     # just number of course
 

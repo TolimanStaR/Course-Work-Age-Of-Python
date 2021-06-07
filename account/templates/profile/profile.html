@@ -4,53 +4,69 @@
 {% block title %}{{ user_obj.username }}{% endblock %}
 
 {% block profile_content %}
-    <p>профиль пользователя {{ user_obj.username }}</p>
-    <img src="{{ user_obj.user_profile.profile_photo.url }}" alt="avatar" style="width: 200px;">
+    <div class="circle-image-250"></div>
     <p>
-        {% if user.is_authenticated %}
-            {% if user != user_obj %}
-                {% if friendship_status == 'friend' %}
-                    вы друзья
-                    <form action="{% url 'remove_friend' username=user_obj.username %}" method="post">
-                        {% csrf_token %}
-                        {{ remove_friend_form.as_p }}
-                        <input type="submit" value="Удалить из друзей">
-                    </form>
-                {% elif friendship_status == 'wait from' %}
-                    <form action="{% url 'accept_request' username=user_obj.username %}" method="post">
-                        {% csrf_token %}
-                        {{ accept_request_form.as_p }}
-                        <input type="submit" value="Принять заявку">
-                    </form>
-                    <form action="{% url 'decline_request' username=user_obj.username %}" method="post">
-                        {% csrf_token %}
-                        {{ decline_request_form.as_p }}
-                        <input type="submit" value="Отклонить заявку">
-                    </form>
-                {% elif friendship_status == 'wait to' %}
-                    заявка отправлена
-                    <form action="{% url 'decline_request' username=user_obj.username %}" method="post">
-                        {% csrf_token %}
-                        {{ decline_request_form.as_p }}
-                        <input type="submit" value="Отменить заявку">
-                    </form>
-                {% elif friendship_status == 'not friend' %}
-                    <form action="{% url 'add_friend' username=user_obj.username %}" method="post">
-                        {% csrf_token %}
-                        {{ friendship_request_form.as_p }}
-                        <p><input type="submit" value="Отправить заявку в друзья"/></p>
-                    </form>
-                {% endif %}
-            {% endif %}
-        {% endif %}
-    </p>
-    <p>
+        <style type="text/css">
+            .circle-image-250 {
+                width: 250px;
+                height: 250px;
+                background-image: url('{{ user_obj.user_profile.profile_photo.url }}');
+                background-size: cover;
+                display: block;
+                border-radius: 10%;
+                position: absolute;
+            }
+        </style>
+    <div style="position: absolute; margin-top: 250px">
         {% if user_obj == user and user_obj.channel %}
-            <a href="{% url 'my_channel' %}">Мой канал</a>
+            <a href="{% url 'my_channel' %}" class="btn btn-dark">Канал {{ user_obj.username }}</a>
         {% elif user_obj == user and not user_obj.channel %}
             <a href="{% url 'create_channel' %}">Создать канал</a>
         {% elif user_obj != user and user_obj.channel %}
-            <a href="{% url 'channel' slug=user_obj.channel.slug %}">Канал пользователя {{ user_obj.username }}</a>
+            <a href="{% url 'channel' slug=user_obj.channel.slug %}"
+               class="btn btn-dark">Канал {{ user_obj.username }}</a>
         {% endif %}
+    </div>
     </p>
+    <div style="position: absolute; margin-top: 300px">
+    {% if user.is_authenticated %}
+        {% if user != user_obj %}
+            <hr style="width: 250px; border: 1px solid black;">
+            {% if friendship_status == 'friend' %}
+                <form action="{% url 'remove_friend' username=user_obj.username %}" method="post">
+                    {% csrf_token %}
+                    {{ remove_friend_form.as_p }}
+                    <p><input type="submit" value="Удалить из друзей" class="btn btn-danger"></p>
+                </form>
+            {% elif friendship_status == 'wait from' %}
+                <form action="{% url 'accept_request' username=user_obj.username %}" method="post">
+                    {% csrf_token %}
+                    {{ accept_request_form.as_p }}
+                    <p><input type="submit" value="Принять заявку в друзья" class="btn btn-success"></p>
+                </form>
+                <form action="{% url 'decline_request' username=user_obj.username %}" method="post">
+                    {% csrf_token %}
+                    {{ decline_request_form.as_p }}
+                    <p><input type="submit" value="Отклонить заявку в друзья" class="btn btn-warning"></p>
+                </form>
+            {% elif friendship_status == 'wait to' %}
+                <form action="{% url 'decline_request' username=user_obj.username %}" method="post">
+                    {% csrf_token %}
+                    {{ decline_request_form.as_p }}
+                    <p><input type="submit" value="Отменить заявку в друзья" class="btn btn-warning"></p>
+                </form>
+            {% elif friendship_status == 'not friend' %}
+                <form action="{% url 'add_friend' username=user_obj.username %}" method="post">
+                    {% csrf_token %}
+                    {{ friendship_request_form.as_p }}
+                    <p><input type="submit" value="Отправить заявку в друзья" class="btn-success btn"/></p>
+                </form>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    </div>
+    <div style="position:absolute; margin-left: 300px; ">
+        <h3>{% if user_obj.first_name %}{{ user_obj.first_name }} {{ user_obj.last_name }}{% else %}{{ user_obj.username }}{% endif %}</h3>
+    <p>{{ user_obj.user_profile.status }}</p>
+    </div>
 {% endblock %}

@@ -3,18 +3,40 @@
 {% block title %}{% endblock %}
 
 {% block content %}
-    <a href="{% url 'profile' username=user_obj.username %}">Профиль</a>
-    <a href="{% url 'subscribes' username=user_obj.username %}">Подписки</a>
-    <a href="{% url 'friends_list' username=user_obj.username %}">Друзья</a>
-    {% if user == user_obj %}
-        <a href="{% url 'friend_requests_list' username=user_obj.username %}">Заявки в друзья
-            {% if user_obj.user_profile.incoming_friend_requests.count > 0 %}
-                [{{ user_obj.user_profile.incoming_friend_requests.count }}]
-            {% endif %}
-        </a>
-        <a href="{% url 'edit_profile' username=user_obj.username %}">Редактировать аккаунт</a>
-        <a href="{% url 'password_change' %}">Сменить пароль</a>
-    {% endif %}
-    {% block profile_content %}
-    {% endblock %}
+    <style type="text/css">
+        {% if user_obj.user_profile.profile_background %}
+            body {
+                background-image: url("{{ user_obj.user_profile.profile_background.url }}");
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-size: 100% 100%;
+            }
+        {% endif %}
+    </style>
+{#    <a style="color: black" href="#" data-bs-toggle="dropdown"><h3><i class="bi-caret-down-square"></i> Профиль#}
+{#        пользователя {{ user_obj }}</h3></a>#}
+
+    <button style="margin: 20px" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+    Профиль пользователя {{ user_obj }}
+  </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{% url 'profile' username=user_obj.username %}">Профиль</a></li>
+        <li><a class="dropdown-item" href="{% url 'subscribes' username=user_obj.username %}">Подписки</a></li>
+        <li><a class="dropdown-item" href="{% url 'friends_list' username=user_obj.username %}">Друзья</a></li>
+        {% if user == user_obj %}
+            <li><a class="dropdown-item" href="{% url 'friend_requests_list' username=user_obj.username %}">Заявки в
+                друзья
+                {% if user_obj.user_profile.incoming_friend_requests.count > 0 %}
+                    [{{ user_obj.user_profile.incoming_friend_requests.count }}]
+                {% endif %}
+            </a></li>
+            <li><a class="dropdown-item" href="{% url 'edit_profile' username=user_obj.username %}">Редактировать
+                аккаунт</a></li>
+            <li><a class="dropdown-item" href="{% url 'password_change' %}">Сменить пароль</a></li>
+        {% endif %}
+    </ul>
+    <div style="padding: 20px">
+        {% block profile_content %}
+        {% endblock %}
+    </div>
 {% endblock %}

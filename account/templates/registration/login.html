@@ -1,20 +1,24 @@
 {% extends 'index.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Авторизация{% endblock %}
 
 {% block content %}
-    <h3>Авторизация</h3>
-    {% if form.errors %}
-        <p>Некорректные данные для входа. попробуйте снова</p>
-    {% endif %}
-    <div>
-        <form action="{% url 'login' %}" method="post">
-            {{ form.as_p }}
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ next }}"/>
-            <p><input type="submit" value="Войти"></p>
-        </form>
-        <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
-    <p><a href="{% url 'registration' %}">Зарегистрироваться</a></p>
+    {#    {% if form.errors %}#}
+    {#        <p>Некорректные данные для входа. попробуйте снова</p>#}
+    {#    {% endif %}#}
+    <div style="padding: 15% 25%;">
+        <h3>Авторизация в системе</h3>
+        <div class="form-control w-100">
+            <form action="{% url 'login' %}" method="post" class="form-group">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}"/>
+                <p><input type="submit" value="Авторизоваться" class="btn btn-success"></p>
+            </form>
+            <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+            <p><a href="{% url 'registration' %}">Зарегистрироваться</a></p>
+        </div>
     </div>
 {% endblock %}

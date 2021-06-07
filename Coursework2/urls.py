@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
     path('', include('main.urls')),
-    path('', include('management.urls')),
+    path('atomicjudge/', include('management.urls')),
     path('', include('courses.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

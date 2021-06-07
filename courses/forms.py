@@ -36,6 +36,7 @@ class CourseForm(forms.ModelForm):
         fields = (
             'title',
             'slug',
+            'description',
             'theme',
             'show_course_in_channel_page',
             'preview_picture',

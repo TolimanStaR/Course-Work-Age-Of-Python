@@ -32,8 +32,16 @@ class UserProfileEditForm(forms.ModelForm):
         model = UserProfile
         fields = (
             'status',
+            'phone',
             'profile_photo',
-            'profile_background'
+            'profile_background',
+            'university',
+            'website',
+            'address',
+            'github',
+            'twitter',
+            'inst',
+            'facebook',
         )
 
 

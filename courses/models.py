@@ -93,6 +93,9 @@ class Course(models.Model):
     slug = models.SlugField(unique=True, max_length=100, default='')
     # course unique identifier in url
 
+    description = models.TextField(default='', blank=True)
+    # description at the course page
+
     theme = models.TextField(choices=CourseThemes.choices, default=CourseThemes.ABSTRACT)
     # course theme / tag
 
@@ -171,8 +174,8 @@ class ModuleDescriptionListElement(models.Model):
 
 class CourseDescriptionBlockImagePosition(models.TextChoices):
     LEFT = 'LEFT', _('Слева от текста')
-    UP = 'UP', _('Сверху над текстом')
-    DOWN = 'DOWN', _('Снизу под текстом')
+    # UP = 'UP', _('Сверху над текстом')
+    # DOWN = 'DOWN', _('Снизу под текстом')
     RIGHT = 'RIGHT', _('Справа от текста')
 
 

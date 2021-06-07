@@ -1,26 +1,21 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Редактировать информацию о курсе{% endblock %}
 
 {% block course_content %}
-    <div>
+    <div style="padding-bottom: 20px">
         <form action="" method="post" enctype="multipart/form-data">
             {{ formset.management_form }}
             <table>
                 {% for form in formset %}
                     {% csrf_token %}
-                    {{ form }}
+                    {{ form|crispy }}
+                    <hr>
                 {% endfor %}
             </table>
-        <input type="submit" value="Сохранить настройки">
+        <input type="submit" value="Сохранить настройки" class="btn-success btn">
         </form>
-
-{#                <form action="" method="post" enctype="multipart/form-data">#}
-{#                    {% csrf_token %}#}
-{#                    {{ formset }}#}
-{#                    {{ formset.management_form }}#}
-{#                    <input type="submit" value="Сохранить настройки">#}
-{#                </form>#}
-
     </div>
 {% endblock %}

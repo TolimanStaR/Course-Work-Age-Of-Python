@@ -6,15 +6,41 @@
 
 {% block content %}
     <div>
-        <p><a href="{% url 'course' slug=course.slug %}">Вернуться на главную страницу курса</a></p>
+        <p style="padding-top: 20px"><a href="{% url 'course' slug=course.slug %}" class="btn btn-outline-secondary">Вернуться
+            на главную страницу курса</a></p>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="bi bi-menu-button-wide"></i> Панель управления</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'update_course' slug=course.slug %}">Настройки</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'update_course_description' slug=course.slug %}">Описание</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'course_students_list' slug=course.slug %}">Студенты</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'module_list' slug=course.slug %}">Модули</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'course_task_list' slug=course.slug %}">Задачи</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'contest_list_edit' slug=course.slug %}">Соревнования</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
         <p>
-            <a href="{% url 'update_course' slug=course.slug %}">Настройки</a>
-            <a href="{% url 'update_course_description' slug=course.slug %}">Описание</a>
-            <a href="{% url 'course_students_list' slug=course.slug %}">Студенты</a>
-            <a href="{% url 'module_list' slug=course.slug %}">Модули</a>
-            <a href="{% url 'course_task_list' slug=course.slug %}">Задачи</a>
-            <a href="{% url 'contest_list_edit' slug=course.slug %}">Соревнования</a>
-            <a href="">Экзамены</a>
         </p>
     </div>
     {% block course_content %}

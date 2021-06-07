@@ -3,15 +3,23 @@
 {% block title %}Модули{% endblock %}
 
 {% block course_content %}
-    <div>
+    <div style="padding-bottom: 20px">
         {% for module in object_list %}
-            <p>Модуль {{ forloop.counter }} <a href="{% url 'module' slug=course.slug order=module.order %}">Перейти к
-                модулю</a> <a href="{% url 'update_module' slug=course.slug order=module.order %}">Настройки</a> <a
-                    href="{% url 'course_module_content_list' slug=course.slug order=module.order %}">Содержимое</a>
-            </p>
+            <div class="card" style="margin-bottom: 20px">
+                <h5 class="card-header">Модуль {{ forloop.counter }}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">{{ module.title }}</h5>
+                    <p class="card-text">{{ module.description|linebreaks|safe }}</p>
+                    <a href="{% url 'module' slug=course.slug order=module.order %}" class="btn btn-success">Перейти к
+                        модулю</a> <a href="{% url 'update_module' slug=course.slug order=module.order %}"
+                                      class="btn btn-outline-success">Настройки</a>
+                    <a href="{% url 'course_module_content_list' slug=course.slug order=module.order %}"
+                       class="btn btn-outline-success">Содержимое</a>
+                </div>
+            </div>
         {% empty %}
             <p>На курсе нет модулей</p>
         {% endfor %}
-        <p><a href="{% url 'create_module' slug=course.slug %}">Создать новый модуль</a></p>
+        <p><a href="{% url 'create_module' slug=course.slug %}" class="btn btn-success">Создать новый модуль</a></p>
     </div>
 {% endblock %}

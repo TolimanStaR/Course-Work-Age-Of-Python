@@ -1,14 +1,16 @@
 {% extends 'channel/channel_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Редактировать канал{% endblock %}
 
 {% block channel_content %}
-    <div>
+    <div style="padding-bottom: 20px;">
         <h3>Изменить настройки канала</h3>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Сохранить настройки">
+            {{ form|crispy }}
+            <input type="submit" value="Сохранить настройки" class="btn btn-success">
         </form>
     </div>
 {% endblock %}

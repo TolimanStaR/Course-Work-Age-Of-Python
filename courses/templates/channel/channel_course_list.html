@@ -4,12 +4,38 @@
 
 {% block channel_content %}
     <div>
+    <h3>Все курсы</h3>
+    <hr>
         {% for course in object_list %}
-            <p>Курс {{ course.title }} <a href="{% url 'course' slug=course.slug %}">Перейти к курсу</a>
-                <a href="{% url 'update_course' slug=course.slug %}">Управление курсом</a></p>
+            {% if course.show_course_in_channel_page %}
+                <style type="text/css">
+                </style>
+                <div class=" mb-3" style="max-width: 1000px;">
+                    <div class="row g-0">
+                        <div style="width: 150px;
+                                height: 150px;
+                                background-image: url('{{ course.preview_picture.url }}');
+                                background-size: cover;
+                                display: block;
+                                border-radius: 50%;"></div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <span class="badge bg-secondary">{{ course.get_theme }}</span>
+                                <span class="badge bg-secondary">online</span>
+                                <h3 class="card-title"><a style="color: black"
+                                                          href="{% url 'course' slug=course.slug %}">{{ course.title }}</a>
+                                </h3>
+                                <a href="{% url 'course' slug=course.slug %}" class="btn btn-outline-success">Перейти к курсу</a>
+                                <a href="{% url 'update_course' slug=course.slug %}" class="btn btn-outline-success">Управление курсом</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            {% endif %}
         {% empty %}
-            <p>На канале пока что нет курсов</p>
+            <p>На канеле нет курсов</p>
         {% endfor %}
-        <p><a href="{% url 'create_course' slug=channel.slug %}">Создать новый курс</a></p>
+    <p><a href="{% url 'create_course' slug=channel.slug %}" class="btn btn-success">Создать новый курс</a></p>
     </div>
 {% endblock %}

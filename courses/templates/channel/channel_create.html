@@ -1,5 +1,7 @@
 {% extends 'index.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Создание канала{% endblock %}
 
 {% block content %}
@@ -7,8 +9,8 @@
     <div>
         <form action="{% url 'channel_create_confirm' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ channel_form.as_p }}
-            <input type="submit" value="Создать канал">
+            {{ channel_form|crispy }}
+            <input type="submit" value="Создать канал" class="btn btn-success">
         </form>
     </div>
 {% endblock %}

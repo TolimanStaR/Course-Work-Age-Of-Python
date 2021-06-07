@@ -1,13 +1,16 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Изменить курс{% endblock %}
 
 {% block course_content %}
-    <div>
+    <div style="padding-bottom: 20px">
+    <h3>Изменение настроек курса</h3>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Сохранить">
+            {{ form|crispy }}
+            <input type="submit" value="Сохранить" class="btn btn-success">
         </form>
     </div>
 {% endblock %}

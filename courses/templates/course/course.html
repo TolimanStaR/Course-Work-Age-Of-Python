@@ -3,29 +3,109 @@
 {% block title %}Курс {{ course.title }}{% endblock %}
 
 {% block content %}
+    <style>
+        .circle-image-250-course {
+            width: 550px;
+            height: 550px;
+
+            background-image: url('{{ course.main_picture.url }}');
+            background-size: cover;
+            display: block;
+            border-radius: 0%;
+        }
+
+        @media only screen and (max-width: 1200px) {
+            .fadeshow1 {
+                display: none;
+            }
+        }
+    </style>
     <div>
-        <h3>Курс {{ course.title }}</h3>
-        {% if course.owner == user %}
-            <p><a href="{% url 'update_course' slug=course.slug %}">Перейти к панели управления курсом</a></p>
-        {% endif %}
-        {% if user.is_authenticated %}
-            {% if is_subscribed %}
-                <p>Вы являетесь студентом курса</p>
-                <form action="{% url 'course_delete_student' slug=course.slug username=user.username %}" method="post">
-                    {% csrf_token %}
-                    {{ course_leave_form.as_p }}
-                    <input type="submit" value="Покинуть курс">
-                </form>
-                <p><a href="{% url 'module' slug=course.slug order=student.cur_module %}">Продолжить обучение</a></p>
-            {% elif course.owner != user %}
-                <form action="{% url 'join_course' slug=course.slug %}" method="post">
-                    {% csrf_token %}
-                    {{ course_join_form.as_p }}
-                    <input type="submit" value="Присоединиться к курсу">
-                </form>
-            {% endif %}
-        {% else %}
-            <p>Чтобы присоединиться к курсу, <a href="{% url 'login' %}">авторизуйтесь</a></p>
-        {% endif %}
+        <div class="row gutters-sm">
+            <div class="col-md-6">
+                <div class=" mb-3">
+                    <div class="card-body">
+                        <h1>{{ course.title|truncatechars:50 }}</h1>
+                        <p>{{ course.description|linebreaks|safe }}</p>
+                        <div class="d-flex flex-column align-items-center text-center">
+                            <div class="mt-3 ">
+                                {% if is_subscribed %}
+                                    <a href="{% url 'module' slug=course.slug order=student.cur_module %}" class="btn btn-success">Продолжить обучение</a>
+                                {% else %}
+                                    {#                                    <a href="" class="btn btn-success">Поступить на курс</a>#}
+                                    <form action="{% url 'join_course' slug=course.slug %}" method="post">
+                                        {% csrf_token %}
+                                        {{ course_join_form.as_p }}
+                                        <p><button type="submit"  class="btn btn-success" value="Присоединиться к курсу">Присоединиться к курсу</button></p>
+                                    </form>
+                                {% endif %}
+                                <a href="#modules" class="btn btn-outline-success">Смотреть программу</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4 fadeshow1">
+                <div class=" fadeshow1">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center text-center">
+                            {#                            <img src="{{ user_obj.user_profile.profile_photo.url }}" alt="{{ user_obj.username }}"#}
+                            {#                                 class="rounded-circle" width="150">#}
+                            <div class="circle-image-250-course "></div>
+                            <div class="mt-3">
+                                <h4>{{ channel.owner_full_name }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="background-color: #373737; padding: 20px">
+        <h3 style="color: white"><i class="bi bi-terminal-fill"></i> Информация</h3>
+        <ul>
+            <li style="color: #c7c7c7">Преподавание на курсе ведется на русском языке.</li>
+            <li style="color: #c7c7c7">Обучение проходит онлайн.</li>
+        </ul>
+    </div>
+    <br>
+    <h3 id="modules"><i class="bi bi-card-list"></i> Программа курса</h3>
+    <h4 class="text-secondary">Модулей: {{ course.modules.count }}</h4>
+    <hr>
+    {% for module in course.modules.all %}
+        <h4 style="color: #299047">Модуль {{ forloop.counter }}. <a style="color:black;">{{ module.title }}</a></h4>
+        <ul>
+            <li>{{ module.description|linebreaks|safe }}</li>
+        </ul>
+        <hr>
+    {% empty %}
+        <p>На курсе пока что нет модулей</p>
+    {% endfor %}
+    {% for block in course.description_blocks.all %}
+        {% include 'course/course_description_block.html' with block=block %}
+    {% endfor %}
+    {#        <h3>Курс {{ course.title }}</h3>#}
+    {#        {% if course.owner == user %}#}
+    {#            <p><a href="{% url 'update_course' slug=course.slug %}">Перейти к панели управления курсом</a></p>#}
+    {#        {% endif %}#}
+    {#        {% if user.is_authenticated %}#}
+    {#            {% if is_subscribed %}#}
+    {#                <p>Вы являетесь студентом курса</p>#}
+    {#                <form action="{% url 'course_delete_student' slug=course.slug username=user.username %}" method="post">#}
+    {#                    {% csrf_token %}#}
+    {#                    {{ course_leave_form.as_p }}#}
+    {#                    <input type="submit" value="Покинуть курс">#}
+    {#                </form>#}
+    {#                <p><a href="{% url 'module' slug=course.slug order=student.cur_module %}">Продолжить обучение</a></p>#}
+    {#            {% elif course.owner != user %}#}
+    {#                <form action="{% url 'join_course' slug=course.slug %}" method="post">#}
+    {#                    {% csrf_token %}#}
+    {#                    {{ course_join_form.as_p }}#}
+    {#                    <input type="submit" value="Присоединиться к курсу">#}
+    {#                </form>#}
+    {#            {% endif %}#}
+    {#        {% else %}#}
+    {#            <p>Чтобы присоединиться к курсу, <a href="{% url 'login' %}">авторизуйтесь</a></p>#}
+    {#        {% endif %}#}
     </div>
 {% endblock %}

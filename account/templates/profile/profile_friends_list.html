@@ -6,7 +6,28 @@
     <div>
         <h3>Друзья</h3>
         {% for friend in object_list %}
-            <p><a href="{% url 'profile' username=friend.user.username %}">{{ friend.user.username }}</a></p>
+            <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+                    <div class="col-md-4" style="margin: 10px; width: 100px;
+                            height: 100px;
+                            background-image: url('{{ friend.profile_photo.url }}');
+                            background-size: cover;
+                            display: block;
+                            border-radius: 50%;">
+                        {#                        <img src="{{ friend.profile_photo.url }}" alt="..." class="card-body">#}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{% url 'profile' username=friend.user.username %}"
+                                                      style="color: black">{{ friend.user.username }}</a></h5>
+                            <p class="text-primary">{{ friend.user.email }}</p>
+                            <p class="card-text"><small class="text-muted">{{ friend.status|truncatechars:50 }}</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {#            <p><a href="{% url 'profile' username=friend.user.username %}">{{ friend.user.username }}</a></p>#}
         {% empty %}
             <p>друзей нет</p>
         {% endfor %}

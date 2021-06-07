@@ -6,38 +6,48 @@
 
 {% block course_content %}
     <div>
+        <h3>Список блоков контента</h3>
         {% for content in object_list %}
-            {#            <p>{{ content }} ({{ content.content_type }}) <a href="">Редактировать</a> <a#}
-            {#                    href="{% url 'course_module_content_delete' slug=course.slug order=module.order id=content.id %}">Удалить</a>#}
-            {#            </p>#}
-            <p>
-                {{ content }} : {{ content.content_type }} <a
-                    href="{% url 'course_module_content_update' slug=course.slug order=module.order model_name=content.item|model_name id=content.id %}">Редактировать</a>
-            <form action="{% url 'course_module_content_delete' slug=course.slug order=module.order id=content.id %}"
-                  method="post">
-                {% csrf_token %}
-                <input type="submit" value="Удалить блок контента">
-            </form>
-            </p>
+            <div class="card" style="margin-bottom: 20px">
+                <h5 class="card-header">{{ content }} <span class="badge bg-secondary">{{ content.content_type }}</span>
+                </h5>
+                <div class="card-body">
+                    <h5 class="card-title">{{ content.item.title }}</h5>
+                    {#                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>#}
+                    <p><a
+                            href="{% url 'course_module_content_update' slug=course.slug order=module.order model_name=content.item|model_name id=content.id %}"
+                            class="btn btn-outline-success">Редактировать</a></p>
+                    <form action="{% url 'course_module_content_delete' slug=course.slug order=module.order id=content.id %}"
+                          method="post">
+                        {% csrf_token %}
+                        <p><input type="submit" value="Удалить блок контента" class="btn btn-outline-danger"></p>
+                    </form>
+                </div>
+            </div>
         {% empty %}
             <p>Контента нет</p>
         {% endfor %}
         <p>Добавить контент:</p>
         <ul>
             <li>
-                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="puretext" %}">Блок
+                <a class="list-group-item"
+                   href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="puretext" %}">Блок
                     текста</a></li>
             <li>
-                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="latex" %}">LaTeX
+                <a class="list-group-item"
+                   href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="latex" %}">LaTeX
                     файл</a></li>
             <li>
-                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="codelisting" %}">Блок
+                <a class="list-group-item"
+                   href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="codelisting" %}">Блок
                     программного кода</a></li>
             <li>
-                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="picture" %}">Изображение</a>
+                <a class="list-group-item"
+                   href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="picture" %}">Изображение</a>
             </li>
             <li>
-                <a href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="videolink" %}">Видео</a>
+                <a class="list-group-item"
+                   href="{% url 'course_module_content_create' slug=course.slug order=module.order model_name="videolink" %}">Видео</a>
             </li>
         </ul>
     </div>

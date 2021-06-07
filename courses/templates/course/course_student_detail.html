@@ -3,14 +3,34 @@
 {% block title %}Управление студентом{% endblock %}
 
 {% block course_content %}
-    <div>
-        <p>{{ student.user.username }}</p>
-        <img src="{{ student.user.user_profile.profile_photo.url }}" style="width: 200px" alt="Photo">
-        <p>~ add some stats</p>
-        <form action="{% url 'course_delete_student' slug=course.slug username=student.user.username %}" method="post">
-            {% csrf_token %}
-            {{ delete_student_form.as_p }}
-            <input type="submit" value="Отчислить студента">
-        </form>
+    <style type="text/css">
+        .circle-image-250 {
+            width: 150px;
+            height: 150px;
+            background-image: url('{{ student.user.user_profile.profile_photo.url }}');
+            background-size: cover;
+            display: block;
+            border-radius: 50%;
+        }
+    </style>
+    <div class="col-md-4 mb-3" style="padding-top: 20px">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex flex-column align-items-center text-center">
+                    {#                            <img src="{{ user_obj.user_profile.profile_photo.url }}" alt="{{ user_obj.username }}"#}
+                    {#                                 class="rounded-circle" width="150">#}
+                    <div class="circle-image-250"></div>
+                    <div class="mt-3">
+                        <h4>{{ object.username }}</h4>
+                        <form action="{% url 'course_delete_student' slug=course.slug username=student.user.username %}"
+                              method="post">
+                            {% csrf_token %}
+                            {{ delete_student_form.as_p }}
+                            <input type="submit" value="Отчислить студента" class="btn btn-outline-danger">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

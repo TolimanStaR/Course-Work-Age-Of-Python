@@ -4,9 +4,32 @@
 
 {% block profile_content %}
     <div>
+        <h3>Заявки в друзья</h3>
         {% for request in incoming_requests %}
-            <p><a href="{% url 'profile' username=request.from_user.user.username %}">
-                Заявка от пользователя {{ request.from_user.user.username }}</a></p>
+{#            <p><a href="{% url 'profile' username=request.from_user.user.username %}">#}
+{#                Заявка от пользователя {{ request.from_user.user.username }}</a></p>#}
+            <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+                    <div class="col-md-4" style="margin: 10px; width: 100px;
+                            height: 100px;
+                            background-image: url('{{ request.from_user.profile_photo.url }}');
+                            background-size: cover;
+                            display: block;
+                            border-radius: 50%;">
+                        {#                        <img src="{{ friend.profile_photo.url }}" alt="..." class="card-body">#}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{% url 'profile' username=request.from_user.user.username %}"
+                                                      style="color: black">{{ request.from_user.user.username }}</a></h5>
+                            <a href="{% url 'profile' username=request.from_user.user.username %}" class="btn btn-outline-primary">Ответить на заявку</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Заявок в друзья нет</p>
         {% endfor %}
     </div>
 {% endblock %}

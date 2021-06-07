@@ -5,11 +5,31 @@
 {% block title %}{% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'my_channel' %}">Вернуться на главную страницу канала</a></p>
-    <a href="{% url 'update_channel' slug=channel.slug %}">Редактировать канал</a>
-    <a href="{% url 'channel_subscribers' slug=channel.slug %}">Управление подписчиками</a>
-    <a href="{% url 'channel_course_list_edit' slug=channel.slug %}">Управление курсами</a>
-    <a href="">Управление блогом</a>
+    <p style="padding-top: 20px"><a href="{% url 'my_channel' %}" class="btn btn-outline-secondary">Вернуться на главную
+        страницу канала</a></p>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="bi bi-menu-button-wide"></i> Панель управления</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'update_channel' slug=channel.slug %}">Редактировать канал</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'channel_subscribers' slug=channel.slug %}">Управление подписчиками</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'channel_course_list_edit' slug=channel.slug %}">Управление курсами</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
     {% block channel_content %}
     {% endblock %}
 {% endblock %}

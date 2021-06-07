@@ -170,7 +170,7 @@ class ChannelDeleteSubscribeFormHandle(FormView):
     def get_success_url(self):
         kwargs = {'slug': self.kwargs['slug']}
         if self.request.user == Channel.objects.get(slug=self.kwargs['slug']).owner:
-            return reverse('channel_subscribers', kwargs=kwargs)
+            return reverse('channel', kwargs=kwargs)
         else:
             return reverse('channel', kwargs=kwargs)
 
@@ -299,6 +299,7 @@ class CourseUpdateView(UpdateView, LoginRequiredMixin):
     fields = (
         'title',
         'slug',
+        'description',
         'theme',
         'show_course_in_channel_page',
         'preview_picture',
@@ -585,6 +586,7 @@ class ContentCreateUpdateView(TemplateView, TemplateResponseMixin, View):
                     obj.save()
                 Content.objects.create(module=self.module, item=obj)
 
+            messages.success(self.request, 'Контент сохранен')
             return redirect('course_module_content_list', self.course.slug, self.module.order)
 
         return self.render_to_response({'form': form, 'object': self.obj, 'course': self.course})

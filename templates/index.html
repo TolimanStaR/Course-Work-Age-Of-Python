@@ -146,12 +146,6 @@
         </div> <!-- navbar-collapse.// -->
     </div> <!-- container-fluid.// -->
 </nav>
-{#    {% if user.is_authenticated %}#}
-{#        <a href="{% url 'profile' username=user.username %}">{{ user }}</a>#}
-{#        <a href="{% url 'logout' %}?next={{ request.get_full_path }}">Выйти</a>#}
-{#    {% else %}#}
-{#        <a href="{% url 'login' %}">Войти в аккаунт</a> <a href="{% url 'registration' %}">Зарегистрироваться</a>#}
-{#    {% endif %}#}
 {% if messages %}
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">

@@ -13,10 +13,12 @@
         </div>
         <p>
             {% if prev_module %}
-                <a href="{% url 'module' slug=course.slug order=prev_module.order %}">{{ prev_module.title }}</a>
+                <a href="{% url 'module' slug=course.slug order=prev_module.order %}"
+                   class="btn btn-outline-secondary"><i class="bi bi-caret-left"></i> Предыдущий модуль</a>
             {% endif %}
             {% if next_module %}
-                <a href="{% url 'module' slug=course.slug order=next_module.order %}">{{ next_module.title }}</a>
+                <a href="{% url 'module' slug=course.slug order=next_module.order %}"
+                   class="btn btn-outline-secondary">Следующий модуль <i class="bi bi-caret-right"></i></a>
             {% endif %}
         </p>
     </div>

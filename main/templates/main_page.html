@@ -28,5 +28,61 @@
         $n^{22}$
         $$ - b \pm \sqrt b^2 - 4ac \over 2a$$
         $n < 10^9$
+    <pre><code style="">
+class Course(models.Model):
+owner = models.ForeignKey(to=User,
+                          on_delete=models.DO_NOTHING,
+                          related_name='own_courses',
+                          default=None)
+# owner of the channel->course
+
+channel = models.ForeignKey(to=Channel,
+                            on_delete=models.CASCADE,
+                            related_name='courses',
+                            null=True,
+                            default=None)
+# channel where course implemented
+
+title = models.CharField(max_length=150)
+# title of the course
+
+slug = models.SlugField(unique=True, max_length=100, default='')
+# course unique identifier in url
+
+description = models.TextField(default='', blank=True)
+# description at the course page
+
+theme = models.TextField(choices=CourseThemes.choices, default=CourseThemes.ABSTRACT)
+# course theme / tag
+
+show_course_in_channel_page = models.BooleanField(default=False)
+# should course be in channel main page
+
+created = models.DateTimeField(default=now, editable=False)
+# time of course creation
+
+preview_picture = models.ImageField(upload_to='course_preview_images/', blank=True)
+# preview image at the courses list
+
+main_picture = models.ImageField(upload_to='course_main_pictures/', blank=True)
+
+# picture at the course main page
+
+def get_theme(self):
+    d = dict()
+    for elem in CourseThemes.choices:
+        d[elem[0]] = elem[1]
+    return d[self.theme]
+
+###### students = models.ManyToManyField(to=User, related_name='courses', blank=True)
+
+# query of students at the course
+
+class Meta:
+    ordering = ('-created',)
+
+def __str__(self):
+    return self.title
+    </code></pre>
     </p>
 {% endblock %}

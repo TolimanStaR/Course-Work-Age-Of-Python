@@ -6,24 +6,32 @@
 
 {% block contest_content %}
     <div>
-        <table>
+        <table class="table table-hover table-striped">
             <tr>
-                <th></th>
-                {% for task in tasks %}
+                <th>#</th>
+                <th>Участник</th>
+                {% for task in contest.tasks.all %}
                     <th>{{ task.title }}</th>
                 {% endfor %}
+                <th>Очки</th>
+                <th>Штраф</th>
             </tr>
-            {% for row in table %}
-                {% if row.type == 0 %}
-                    посылка во время соревнования а не дорешивания
+            {% for user_obj in table %}
+                {% if user_obj.type == 0 %}
                     <tr>
-                        <td>{{ row.username }}</td>
-                        {% for stat in row.stats %}
-                            <td>{% if stat.is_solved %}+{% if stat.try_count > 1 %}{{ stat.try_count }}{% endif %}
-                                {% else %}{% if stat.try_count > 0 %}-{{ stat.try_count }}{% endif %}{% endif %}
-                                [{{ stat.points }}]
+                        <td>{{ forloop.counter }}</td>
+                        <td><a style="text-decoration: none"
+                               href="{% url 'profile' username=user_obj.username %}">{{ user_obj.username }}</a></td>
+                        {% for stat in user_obj.stats %}
+                            <td>
+                                {% if stat.is_solved %}<i class="bi bi-check"></i>
+                                    {% if stat.try_count > 1 %}{{ stat.try_count }}{% endif %}
+                                    {% else %}{% if stat.try_count > 0 %}<i class="bi bi-x"></i>{{ stat.try_count }}
+                                    {% endif %}{% endif %}
                             </td>
                         {% endfor %}
+                        <td>{{ user_obj.points }}</td>
+                        <td>{{ user_obj.penalty }}</td>
                     </tr>
                 {% endif %}
             {% endfor %}

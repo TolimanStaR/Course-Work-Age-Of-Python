@@ -5,9 +5,29 @@
 {% block contest_content %}
     <div>
         <h3>Список посылок</h3>
-        {% for solution in object_list %}
-            <p><a href="{% url 'contest_participant_solution_detail' id=contest.id solution_id=solution.id %}">[{{ solution.created }}] ({{ solution.id }}) Задача: {{ solution.task }} |
-                Вердикт: {{ solution.verdict }}</a></p>
-        {% endfor %}
+        <table class="table table-hover">
+            <tr>
+                <th>ID</th>
+                <th>Время</th>
+                <th>Участник</th>
+                <th>Задача</th>
+                <th>Статус проверки</th>
+                <th>Вердикт</th>
+            </tr>
+            {% for solution in object_list %}
+                <tr>
+                    <td><a href="{% url 'contest_participant_solution_detail' id=contest.id solution_id=solution.id %}">{{ solution.id }}</a></td>
+                    <td>{{ solution.created }}</td>
+                    <td><a style="text-decoration: none"
+                           href="{% url 'profile' username=solution.participant.user.username %}">{{ solution.participant.user.username }}</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'contest_participant_task_detail' id=contest.id task_id=solution.task.id %}">{{ solution.task.title|truncatechars:30 }}</a>
+                    </td>
+                    <td>{{ solution.status }}</td>
+                    <td>{{ solution.verdict_text }}</td>
+                </tr>
+            {% endfor %}
+        </table>
     </div>
 {% endblock %}

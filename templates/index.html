@@ -1,8 +1,11 @@
-{% load crispy_forms_tags %}
+{% load static %}
+
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link href="/main/static/css/obsidian.min.css" rel='stylesheet'/>
+    <link href="{% static 'css/obsidian.min.css' %}" rel='stylesheet'/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" type="text/css"/>
     <script src="{{ STATIC_URL }}js/bootstrap.js"></script>
@@ -20,6 +23,7 @@
             integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    {#    <link rel="stylesheet" href="/static/css/code_syntax/base16/black-metal-venom.min.css">#}
     <script>
         MathJax = {
             tex: {
@@ -205,6 +209,8 @@
         </footer>
     </div>
 </footer>
+<script src='http://yastatic.net/highlightjs/8.2/highlight.min.js'></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#exampleModal').modal('show');

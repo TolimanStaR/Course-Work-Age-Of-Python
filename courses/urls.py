@@ -242,6 +242,12 @@ urlpatterns = [
          ContestParticipantScoreboardView.as_view(),
          name='contest_participant_scoreboard', ),
 
+    # description contest:
+
+    path('contest/<id>/description/',
+         ContestParticipantDescriptionView.as_view(),
+         name='contest_description', ),
+
     path('contest/<id>/update_condition/',
          contest_condition_update_view,
          name='update_contest_condition', ),

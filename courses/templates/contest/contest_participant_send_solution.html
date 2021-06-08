@@ -1,14 +1,17 @@
 {% extends 'contest/contest_participant_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Отправить решение{% endblock %}
 
 {% block contest_content %}
     {% if participant %}
         <div>
+        <h3>Отправить решение на проверку</h3>
             <form action="{% url 'contest_participant_send_solution_success' id=contest.id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <input type="submit" value="Отправить решение">
+                {{ form|crispy }}
+                <input type="submit" value="Отправить решение" class="btn btn-success">
             </form>
         </div>
     {% else %}

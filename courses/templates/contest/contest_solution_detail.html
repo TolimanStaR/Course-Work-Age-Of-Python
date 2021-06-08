@@ -1,27 +1,70 @@
 {% extends 'course/course_control_panel_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Посылка {% endblock %}
 
 {% block course_content %}
     <div>
-        <h3>Посылка</h3>
-        <p>Автор: {{ solution.participant.user }}</p>
-        <p>Время отправки: {{ solution.created }}</p>
-        <p>Статус проверки: {{ solution.status }}</p>
-        <p>Вердикт: {{ solution.verdict_text }}</p>
-        <p>Код - {{ solution.code_file.language }}</p>
-        <pre>{{ solution.code_file.code }}
-        </pre>
-        <form action="{% url 'rejudge_contest_solution' slug=course.slug id=contest.id solution_id=solution.id %}"
-              method="post">
-            {% csrf_token %}
-            <input type="submit" value="Отправить решение на повторное тестирование">
-        </form>
-        <form action="{% url 'delete_contest_participant' slug=course.slug id=contest.id solution_id=solution.id %}"
-              method="post">
-            {% csrf_token %}
-            {{ action_delete_participant_form.as_p }}
-            <input type="submit" value="Удалить участника {{ solution.participant.user }} с соревнования">
-        </form>
+        <h3>Посылка №{{ solution.id }}</h3>
+        <table class="table table-sm">
+            <tr>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>Автор</td>
+                <td>
+                    <a href="{% url 'profile' username=solution.participant.user.username %}">{{ solution.participant.user|truncatechars:30 }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Задача</td>
+                <td>
+                    <a href="{% url 'contest_participant_task_detail' id=contest.id task_id=solution.task.id %}">{{ solution.task.title|truncatechars:30 }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Время отправки</td>
+                <td>{{ solution.created }}</td>
+            </tr>
+            <tr>
+                <td>Статус проверки</td>
+                <td>{{ solution.status }}</td>
+            </tr>
+            <tr>
+                <td>Вердикт</td>
+                <td>{{ solution.verdict_text }}</td>
+            </tr>
+            <tr>
+                <td>Язык</td>
+                <td>{{ solution.code_file.language }}</td>
+            </tr>
+        </table>
+        <div class="card" style="margin-bottom: 20px">
+            <div class="card-body">
+                <h5>Повторное тестирование</h5>
+                <form action="{% url 'rejudge_contest_solution' slug=course.slug id=contest.id solution_id=solution.id %}"
+                      method="post" class="">
+                    {% csrf_token %}
+                    <input type="submit" value="Отправить решение на повторное тестирование"
+                           class="btn btn-outline-success">
+                </form>
+            </div>
+        </div>
+        <div class="card" style="margin-bottom: 20px">
+            <div class="card-body">
+                <h5>Исключить участника</h5>
+                <form action="{% url 'delete_contest_participant' slug=course.slug id=contest.id solution_id=solution.id %}"
+                      method="post">
+                    {% csrf_token %}
+                    {{ action_delete_participant_form|crispy }}
+                    <input type="submit" value="Удалить участника {{ solution.participant.user }} с соревнования"
+                           class="btn btn-outline-success">
+                </form>
+            </div>
+        </div>
+        <h3>Код посылки</h3>
+        {% include 'module/content/codelisting.html' with item=solution.code_file %}
     </div>
 {% endblock %}

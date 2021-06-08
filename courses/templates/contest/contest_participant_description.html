@@ -1,0 +1,8 @@
+{% extends 'contest/contest_participant_frame.html' %}
+
+{% block title %}Посылка {{ solution.id }}{% endblock %}
+
+{% block contest_content %}
+    <h3>Информация о соревновании</h3>
+    {{ contest.description|linebreaks|safe }}
+{% endblock %}

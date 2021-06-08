@@ -1116,10 +1116,11 @@ class ContestParticipantMixin(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            if self.get_participant().deleted:
-                return HttpResponseRedirect(
-                    reverse('contest_participant_deleted', kwargs=self.kwargs)
-                )
+            if self.get_participant() is not None:
+                if self.get_participant().deleted:
+                    return HttpResponseRedirect(
+                        reverse('contest_participant_deleted', kwargs=self.kwargs)
+                    )
         except ObjectDoesNotExist:
             pass
         # if self.get_contest().status == ContestStatus.WAIT_FOR_START:
@@ -1138,16 +1139,52 @@ class ContestParticipantMixin(TemplateView):
         return self.get_contest().status
 
     def get_participant(self):
-        return ContestParticipant.objects.get(
-            contest=self.get_contest(),
-            user=self.request.user
-        )
+        try:
+            return ContestParticipant.objects.get(
+                contest=self.get_contest(),
+                user=self.request.user
+            )
+        except ObjectDoesNotExist:
+            return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['contest'] = self.get_contest()
         try:
             context['participant'] = self.get_participant()
+            c = context['contest']
+            p = context['participant']
+
+            class TableTaskElem:
+                def __init__(self):
+                    self.try_count = 0
+                    self.all_try_count = None
+
+            a = [TableTaskElem() for _ in range(c.tasks.all().count())]
+            for i, t in enumerate(c.tasks.all()):
+
+                s = set()
+
+                sol = ContestSolution.objects.filter(
+                    task=t.id,
+                    verdict=Verdict.CORRECT_SOLUTION,
+                )
+
+                for par in sol:
+                    s.add(par.participant.user.username)
+
+                a[i].all_try_count = len(s)
+
+                if ContestSolution.objects.filter(
+                        participant=p,
+                ).count() > 0:
+                    a[i].try_count = -1
+                    if ContestSolution.objects.filter(
+                            participant=p,
+                            verdict=Verdict.CORRECT_SOLUTION,
+                    ).count() > 0:
+                        a[i].try_count = 1
+            context['table_task'] = a
         except ObjectDoesNotExist:
             context['participant'] = None
         return context
@@ -1225,9 +1262,10 @@ class ContestParticipantSolutionSendSolutionFileFormHandle(FormView, ContestPart
                 task=form.cleaned_data['task'],
             )
             solution.save()
-            self.get_participant().penalty += (datetime.datetime.now(
+            p = self.get_participant()
+            p.penalty += (datetime.datetime.now(
                 datetime.timezone.utc) - self.get_contest().start_time).seconds // 60
-            self.get_participant().save()
+            p.save()
             messages.success(self.request, 'Ваше решение отправлено на проверку')
         else:
             messages.error(self.request, 'При отправке решения произошла ошибка')
@@ -1266,9 +1304,10 @@ class ContestParticipantSolutionSendCodeFormHandle(FormView, ContestParticipantM
                 task=form.cleaned_data['task'],
             )
             solution.save()
-            self.get_participant().penalty += (datetime.datetime.now(
+            p = self.get_participant()
+            p.penalty += (datetime.datetime.now(
                 datetime.timezone.utc) - self.get_contest().start_time).seconds // 60
-            self.get_participant().save()
+            p.save()
             messages.success(self.request, 'Ваш код отправлен на проверку')
         else:
             messages.error(self.request, 'При отправке кода произошла ошибка')
@@ -1301,10 +1340,13 @@ class ContestParticipantSolutionDetailView(DetailView, ContestParticipantMixin):
     context_object_name = 'solution'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(
+        s = get_object_or_404(
             ContestSolution,
             id=self.kwargs.get('solution_id', None),
         )
+        if s.participant.user != self.request.user:
+            raise Http404
+        return s
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -1327,6 +1369,7 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
             self.task_solved = None
             self.points = 0
             self.type = 0
+            self.penalty = 0
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1348,6 +1391,7 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
                     participant=participant,
                     task=tasks[i],
                 )
+
                 stats[i].try_count = len(solutions)
                 stats[i].points = max([s.points for s in solutions] + [-1])
                 points += stats[i].points
@@ -1357,6 +1401,7 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
             user.stats = stats
             user.task_solved = solved_cnt
             user.points = points
+            user.penalty = participant.penalty
             if context['contest'].status == ContestStatus.FINISHED:
                 user.type = 1
             table.append(user)
@@ -1415,6 +1460,10 @@ def contest_condition_update_view(request, id):
 
     contest.save()
     return JsonResponse(data, status=200)
+
+
+class ContestParticipantDescriptionView(ContestParticipantMixin):
+    template_name = 'contest/contest_participant_description.html'
 
 
 # Here starts views which are handle user's interface requests

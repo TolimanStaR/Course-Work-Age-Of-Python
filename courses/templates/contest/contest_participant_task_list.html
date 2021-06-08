@@ -1,12 +1,30 @@
 {% extends 'contest/contest_participant_frame.html' %}
 
+{% load course %}
+
 {% block title %}Список задач{% endblock %}
 
 {% block contest_content %}
     <div>
-    <h3>Список задач</h3>
-    {% for task in contest.tasks.all %}
-        <p><a href="{% url 'contest_participant_task_detail' id=contest.id task_id=task.id %}">{{ task.title }}</a></p>
-    {% endfor %}
+        <h3>Список задач</h3>
+    <br>
+        <table class="table table-hover">
+            <tr>
+                <th>#</th>
+                <th>Задача</th>
+                <th>Статус</th>
+                <th>Решивших</th>
+            </tr>
+            {% for task in contest.tasks.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{% url 'contest_participant_task_detail' id=contest.id task_id=task.id %}"
+                           class="text-dark">{{ task.title }}</a></td>
+                    {% with table_task|index:forloop.counter0 as t %}
+                        <td>{% if t.try_count == 1 %}<i style="color: green" class="bi bi-check-square-fill"></i>{% elif t.try_count == -1 %}<i style="color: red" class="bi bi-x-square-fill"></i>{% endif %}</td>
+                        <td>{{ t.all_try_count }}</td>{% endwith %}
+                </tr>
+            {% endfor %}
+        </table>
     </div>
 {% endblock %}

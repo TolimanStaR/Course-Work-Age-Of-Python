@@ -291,6 +291,9 @@ class CourseTask(AbstractTask):
                                                   on_delete=models.DO_NOTHING, null=True)
     difficulty = models.IntegerField(default=1)
 
+    class Meta:
+        ordering = ('difficulty',)
+
 
 class CourseSolution(Solution):
     course = models.ForeignKey(to=Course,
@@ -321,6 +324,7 @@ class Contest(models.Model):
     duration = models.DurationField(default=datetime.timedelta(hours=2))
     tasks = models.ManyToManyField(to=CourseTask, related_name='contests', blank=True)
     status = models.TextField(choices=ContestStatus.choices, default=ContestStatus.WAIT_FOR_START)
+    description = models.TextField(blank=True, default='')
 
 
 class ContestParticipant(models.Model):

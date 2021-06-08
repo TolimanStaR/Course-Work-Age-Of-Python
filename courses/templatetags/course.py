@@ -10,9 +10,10 @@ def model_name(obj):
     except AttributeError:
         return None
 
+
 @register.filter
-def index(obj, index):
+def index(obj, index__):
     try:
-        return obj[index]
+        return obj[index__]
     except AttributeError:
         return None

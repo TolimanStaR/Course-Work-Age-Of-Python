@@ -112,6 +112,7 @@ class ContestForm(forms.ModelForm):
             'title',
             'start_time',
             'duration',
+            'description',
         )
         widgets = {
             'start_time': DateTimeWidget(attrs={'id': 'start_time'}, usel10n=True, bootstrap_version=3),

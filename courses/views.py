@@ -664,7 +664,7 @@ class CourseTaskCreateFormHandle(FormView):
                 file=form.cleaned_data['solution_file_raw'],
                 language=form.cleaned_data['solution_file_lang'],
                 code=form.cleaned_data['solution_file_raw'].read().decode('utf-8'),
-                file_name=form.cleaned_data['solution_file_raw'].name,
+                file_name=str(uuid.uuid4()) + form.cleaned_data['solution_file_raw'].name,
             )
             new_code_file.save()
 
@@ -1247,6 +1247,8 @@ class ContestParticipantSolutionSendSolutionFileFormHandle(FormView, ContestPart
 
     # noinspection DuplicatedCode
     def form_valid(self, form):
+        print('\n\n\n\n')
+
         if form.is_valid():
             code_file = CodeFile.objects.create(
                 file=form.cleaned_data['file'],
@@ -1254,6 +1256,7 @@ class ContestParticipantSolutionSendSolutionFileFormHandle(FormView, ContestPart
                 code=form.cleaned_data['file'].read().decode('utf-8'),
                 file_name=form.cleaned_data['file'].name,
             )
+            print(form.cleaned_data['file'].read().decode('utf-8'), )
             code_file.save()
             solution = ContestSolution.objects.create(
                 participant=self.get_participant(),
@@ -1391,7 +1394,6 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
                     participant=participant,
                     task=tasks[i],
                 )
-
                 stats[i].try_count = len(solutions)
                 stats[i].points = max([s.points for s in solutions] + [-1])
                 points += stats[i].points
@@ -1403,7 +1405,7 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
             user.points = points
             user.penalty = participant.penalty
             if context['contest'].status == ContestStatus.FINISHED:
-                user.type = 1
+                user.type = 0
             table.append(user)
         table.sort(key=lambda x: x.task_solved, reverse=True)
         context['table'] = table
@@ -1440,13 +1442,12 @@ def contest_condition_update_view(request, id):
             contest.status = ContestStatus.WAIT_FOR_START
     if start <= now_time <= finish:
         if contest.status == ContestStatus.ACTIVE:
-            pass
+            data['timer'] = str(finish - now_time).split('.')[0]
         else:
             contest.status = ContestStatus.ACTIVE
             data['contest_status'] = 'active'
             data['alert_action'] = 1
             data['alert_message'] = 'Соревнование началось'
-            data['timer'] = str(now_time - start)
 
     if finish < now_time:
         if contest.status == ContestStatus.FINISHED:
@@ -1456,10 +1457,55 @@ def contest_condition_update_view(request, id):
             data['contest_status'] = 'finished'
             data['alert_action'] = 2
             data['alert_message'] = 'Соревнование закончилось'
-            data['timer'] = 'Время истекло'
+            data['timer'] = 'Время вышло'
 
     contest.save()
     return JsonResponse(data, status=200)
+
+
+def update_contest_solutions(request, id):
+    class TableElement:
+        def __init__(self):
+            self.color = None
+            self.percent = None
+            self.verdict_text = None
+            self.value = None
+            self.status = None
+
+    contest = Contest.objects.get(id=id)
+    user = request.user
+    solutions = ContestSolution.objects.filter(
+        participant__user=user,
+        participant__contest=contest,
+    )
+    task = None
+    n = len(solutions)
+    if n > 0:
+        task = solutions[0].task
+    test_count = task.tests.count()
+    table = [[0, 0, 0, 0, 0] for _ in range(n)]
+    for i, s in enumerate(solutions):
+        cur_test = s.cur_test
+        table[i][1] = f'{int((cur_test / test_count) * 100)}'
+        table[i][2] = s.verdict_text
+        table[i][4] = s.status
+        if s.status == Status.QUEUED:
+            table[i][3] = 'В очереди'
+        if s.status == Status.IN_PROGRESS:
+            table[i][3] = f'<div class="progress" style="width: 120px">\
+                                <div class="progress-bar" role="progressbar" style="width: {table[i][1]}%; "\
+                                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>\
+                            </div>'
+        elif s.status == Status.WAIT_FOR_CHECK:
+            table[i][3] = f'<div class="spinner-border" role="status" style="width: 20px; height: 20px">\
+                                <span class="sr-only"></span>\
+                            </div>'
+        elif s.status == Status.CHECK_FAILED:
+            table[i][3] = f'<i class="bi bi-x-square" style="color: #ff5945"></i>'
+        elif s.status == Status.CHECK_SUCCESS:
+            table[i][3] = f'<i class="bi bi-check-square" style="color: #56ff20"></i>'
+
+    return JsonResponse(data={'table': table}, status=200)
 
 
 class ContestParticipantDescriptionView(ContestParticipantMixin):
@@ -1699,3 +1745,18 @@ class ContestStudentListView(ListView):
     def get_queryset(self):
         qs = Contest.objects.all()
         return qs.filter(course=get_object_or_404(Course, slug=self.kwargs.get('slug', None)))
+
+
+class ChannelListViewMain(ListView):
+    model = Channel
+    template_name = ''
+
+
+class CourseListViewMain(ListView):
+    model = Course
+    template_name = 'course/course_list.html'
+
+
+class ContestListViewMain(ListView):
+    model = Contest
+    template_name = ''

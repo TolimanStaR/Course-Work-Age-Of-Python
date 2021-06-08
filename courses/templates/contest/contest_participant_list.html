@@ -4,9 +4,24 @@
 
 {% block course_student_content %}
     <div>
+        <h3>Соревнования</h3>
         {% for contest in object_list %}
-            <p><a href="{% url 'contest_participant_task_list' id=contest.id %}">{{ contest.title }}
-                ({{ contest.status }})</a></p>
+            <div class="card" style="margin-bottom: 20px">
+                <h5 class="card-header">{{ contest.title|truncatechars:45 }}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Начало: {{ contest.start_time }}</h5>
+                    <p class="card-text">
+                        {% if contest.status == 'WAIT' %}
+                            Соревнование еще не началось
+                        {% elif contest.status == 'ACTIVE' %}
+                            Соревнование идет
+                        {% elif contest.status == 'FINISHED' %}
+                            Соревнование завершено
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'contest_participant_task_list' id=contest.id %}" class="btn btn-success">Перейти к соревнованию</a>
+                </div>
+            </div>
         {% empty %}
             <p>Соревнований нет</p>
         {% endfor %}

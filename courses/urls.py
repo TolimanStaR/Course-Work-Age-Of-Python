@@ -194,6 +194,10 @@ urlpatterns = [
          ContestParticipantTaskListView.as_view(),
          name='contest_participant_task_list', ),
 
+    path('contest/<id>/',
+         ContestParticipantTaskListView.as_view(),
+         name='contest_participant_task_list', ),
+
     # task detail:
 
     path('contest/<id>/task/<task_id>/',
@@ -279,4 +283,12 @@ urlpatterns = [
     path('course/<slug:slug>/contests/',
          ContestStudentListView.as_view(),
          name='contest_list', ),
+
+    path('contest/<id>/update_solution_list/',
+         update_contest_solutions,
+         name='update_solution_list', ),
+
+    path('courses/',
+         CourseListViewMain.as_view(),
+         name='course_catalog', ),
 ]

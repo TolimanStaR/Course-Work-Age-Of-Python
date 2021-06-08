@@ -3,20 +3,30 @@
 {% block title %}Регистрация{% endblock %}
 
 {% block content %}
-    <div>
-        <h3>Регистация на контест</h3>
-        {% if user.is_authenticated %}
-            {% if not already_participant %}
-                <form action="{% url 'contest_registration_success' id=contest.id %}" method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <input type="submit" value="Зарегистрироваться">
-                </form>
+    <div style="padding: 15% 25%;">
+        <div class="form-control w-100">
+            <h3>Регистация на контест</h3>
+            <p>Правила</p>
+            <ul>
+                <li>Соревнование пишется индивидуально, запрещается взаимодействовать с другими участниками</li>
+                <li>Запрещается наносить вред автоматической проверяющей системе</li>
+                <li>Во время соревнований рекомендуется употреблять минеральную воду "Сенежская"</li>
+            </ul>
+            <p>Нажимая кнопку "зарегистрироваться", вы соглашаетесь с правилами</p>
+            {% if user.is_authenticated %}
+                {% if not already_participant %}
+                    <form action="{% url 'contest_registration_success' id=contest.id %}" method="post"
+                          class="form-group">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Зарегистрироваться" class="btn-success btn">
+                    </form>
+                {% else %}
+                    <p>Вы уже зарегистрированы на соревнование</p>
+                {% endif %}
             {% else %}
-                <p>Вы уже зарегистрированы на соревнование</p>
+                <p>Для регистрации <a href="{% url 'login' %}">войдите в аккаунт</a></p>
             {% endif %}
-        {% else %}
-            <p>Для регистрации <a href="{% url 'login' %}">войдите в аккаунт</a></p>
-        {% endif %}
+        </div>
     </div>
 {% endblock %}

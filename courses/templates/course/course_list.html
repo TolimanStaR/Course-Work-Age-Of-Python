@@ -1,0 +1,38 @@
+{% extends 'index.html' %}
+{% block title %}Каталог курсов{% endblock %}
+{% block content %}
+    <div>
+        <h3>Каталог курсов</h3>
+    <hr>
+        {% for course in object_list %}
+            {% if course.show_course_in_channel_page %}
+                <style type="text/css">
+                </style>
+                <div class=" mb-3" style="max-width: 1000px;">
+                    <div class="row g-0">
+                        <div style="width: 150px;
+                                height: 150px;
+                                background-image: url('{{ course.preview_picture.url }}');
+                                background-size: cover;
+                                display: block;
+                                border-radius: 50%;"></div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <span class="badge bg-secondary">{{ course.get_theme }}</span>
+                                <span class="badge bg-secondary">online</span>
+                                <h3 class="card-title"><a style="color: black"
+                                                          href="{% url 'course' slug=course.slug %}">{{ course.title }}</a>
+                                </h3>
+                                <p class="text-black"><small class="text-muted">Модулей: {{ course.modules.count }},
+                                    Обучающихся: {{ course.students.count }}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            {% endif %}
+        {% empty %}
+            <p>Пока что курсов нет</p>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -145,6 +145,7 @@ class Solution(models.Model):
     event_type = models.TextField(choices=SolutionEventType.choices,
                                   default=SolutionEventType.USER_TASK_SOLUTION)
     points = models.IntegerField(default=0)
+    cur_test = models.IntegerField(default=0)
 
     class Meta:
         ordering = ('-created',)

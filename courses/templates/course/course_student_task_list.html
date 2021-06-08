@@ -4,8 +4,24 @@
 
 {% block course_student_content %}
     <div>
-        {% for task in object_list %}
-            <p><a href="{% url 'course_student_task_detail' slug=course.slug task_id=task.id %}">{{ task.title }}</a></p>
-        {% endfor %}
+    <h3>Список задач</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Задача</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task in object_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <a href="{% url 'course_student_task_detail' slug=course.slug task_id=task.id %}">{{ task.title }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}

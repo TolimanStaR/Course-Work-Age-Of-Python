@@ -1,40 +1,98 @@
 {% extends 'course/course_student_frame.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}{{ task.title }}{% endblock %}
 
 {% block course_student_content %}
     <div>
         <h1>{{ task.title }}</h1>
-        <p>{{ task.task_description|linebreaks }}</p>
-        <p>{{ task.input_description|linebreaks }}</p>
-        <p>{{ task.output_description|linebreaks }}</p>
-        <table style="border: 1px solid black; border-collapse: collapse;">
+        <table class="table" style="width: 50%">
             <tr>
-                <th style="border: 1px solid black;">Пример входных данных</th>
-                <th style="border: 1px solid black;">Пример вывода</th>
+                <td>Ограничение по времени</td>
+                <td>{{ task.time_limit_seconds }} сек.</td>
             </tr>
             <tr>
-                <td style="border: 1px solid black;">{{ task.input_example|linebreaks }}</td>
-                <td style="border: 1px solid black;">{{ task.output_example|linebreaksbr }}</td>
+                <td>Ограничение по памяти</td>
+                <td>512 мегабайт</td>
+            </tr>
+            <tr>
+                <td>Ввод / вывод</td>
+                <td>стандартный поток</td>
             </tr>
         </table>
+        <br>
+        <p>{{ task.task_description|linebreaks|safe }}</p>
+        <h4>Входные данные</h4>
+        <p>{{ task.input_description|linebreaks|safe }}</p>
+        <h4>Выходные данные</h4>
+        <p>{{ task.output_description|linebreaks|safe }}</p>
+
+        <table class="table" style="width: 50%">
+            <thead class="table-secondary">
+            <tr>
+                <th>
+                    <a onclick="copyToClipboard('#input')" style="text-decoration: none">Пример входных данных <i
+                            class="bi bi-clipboard"></i></a>
+                </th>
+                <th><a onclick="copyToClipboard('#output')" style="text-decoration: none">Пример вывода <i
+                        class="bi bi-clipboard"></i></a></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td id="input">{{ task.input_example|linebreaks }}</td>
+                <td id="output">{{ task.output_example|linebreaksbr }}</td>
+            </tr>
+            </tbody>
+        </table>
+        <script type="text/javascript">
+            function copyToClipboard(element) {
+                var $temp = $("<input>");
+                $("body").append($temp);
+                $temp.val($(element).text()).select();
+                document.execCommand("copy");
+                $temp.remove();
+            }
+        </script>
+        <h3>Отправить решение</h3>
         {% if user.is_authenticated %}
             <form action="{% url 'course_task_send_solution' slug=course.slug task_id=task.id %}" method="post"
                   enctype="multipart/form-data">
-            {% csrf_token %}
-                {{ form.as_p }}
-                <input type="submit" value="Отправить">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <input type="submit" value="Отправить" class="btn btn-success">
             </form>
         {% else %}
             <p>Чтобы отправить решение, <a href="{% url 'login' %}">войдите</a></p>
         {% endif %}
         {% block solution_content %}
         {% endblock %}
-        {% for solution in solutions %}
-            <p>
-            {{ solution.id }}
-                <a href="{% url 'course_solution_detail' slug=course.slug task_id=task.id solution_id=solution.id %}">{{ solution.created }}</a>
-            </p>
-        {% endfor %}
+        <br>
+        <h3>Решения:</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Время</th>
+                <th>Пользователь</th>
+                <th>Статус проверки</th>
+                <th>Вердикт</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for solution in solutions %}
+                <tr>
+                    <td><a href="{% url 'course_solution_detail' slug=course.slug task_id=task.id solution_id=solution.id %}">{{ solution.id }}</a></td>
+                    <td>{{ solution.created }}</td>
+                    <td>
+                        <a href="{% url 'profile' username=solution.author.username %}">{{ solution.author.username }}</a>
+                    </td>
+                    <td>{{ solution.get_status }}</td>
+                    <td>{{ solution.verdict_text }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}

@@ -326,6 +326,9 @@ class Contest(models.Model):
     status = models.TextField(choices=ContestStatus.choices, default=ContestStatus.WAIT_FOR_START)
     description = models.TextField(blank=True, default='')
 
+    class Meta:
+        ordering = ('-start_time',)
+
 
 class ContestParticipant(models.Model):
     contest = models.ForeignKey(to=Contest,
@@ -347,3 +350,8 @@ class ContestSolution(Solution):
                                     on_delete=models.CASCADE,
                                     default=None)
 
+    def get_status(self):
+        d = dict()
+        for elem in Status.choices:
+            d[elem[0]] = elem[1]
+        return d[self.status]

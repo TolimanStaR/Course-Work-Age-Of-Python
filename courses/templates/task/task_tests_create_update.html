@@ -12,10 +12,12 @@
                 {% for form in formset %}
                     {% csrf_token %}
                     {{ form|crispy }}
-                    {% if form.instance.rigth_answer %}
-                        <p>Правильный ответ на тест:</p>
-                        <p>{{ form.instance.right_answer|linebreaks|safe }}</p>
-                    {% endif %}
+{#                    {% if form.instance.rigth_answer %}#}
+{#                        <p>Правильный ответ на тест:</p>#}
+{#                        <p>{{ form.instance.right_answer|linebreaks|safe }}</p>#}
+{#                    {% endif %}#}
+                    <p>Правильный ответ:</p>
+                    <input type="text" class="form-control classname" value="{{ form.instance.right_answer|safe }}" readonly aria-label="Disabled input example">
                     <hr>
                 {% endfor %}
             </table>

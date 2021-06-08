@@ -6,10 +6,32 @@
 
 {% block content %}
     <div>
-        <h3>{{ course.title }}</h3>
-        <p><a href="{% url 'module' slug=course.slug order=0 %}">Модули</a>
-            <a href="{% url 'course_student_task_list' slug=course.slug %}">Задачи</a>
-            <a href="{% url 'contest_list' slug=course.slug %}">Соревнования</a></p>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'course' slug=course.slug %}"><i
+                        class="bi bi-file-bar-graph"></i> {{ course.title|truncatechars:30 }}</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'module' slug=course.slug order=0 %}"> Модули</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'course_student_task_list' slug=course.slug %}">
+                                Задачи</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'contest_list' slug=course.slug %}">
+                                Соревнования</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
         {% block course_student_content %}
         {% endblock %}
     </div>

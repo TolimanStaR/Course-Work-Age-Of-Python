@@ -4,6 +4,7 @@
 
 {% block course_student_content %}
     <div>
+        <h3>Модуль {{ module.order }}. {{ module.title|truncatechars:45 }}</h3>
         <div>
             {% for content in module.content_list.all %}
                 {% with item=content.item %}
@@ -11,8 +12,9 @@
                 {% endwith %}
             {% endfor %}
         </div>
-        <p>
-            {% if prev_module %}
+        <div class="d-flex align-items-start flex-column align-bottom" style="margin-top: 650px;">
+            <p>
+                {% if prev_module %}
                 <a href="{% url 'module' slug=course.slug order=prev_module.order %}"
                    class="btn btn-outline-secondary"><i class="bi bi-caret-left"></i> Предыдущий модуль</a>
             {% endif %}
@@ -20,6 +22,7 @@
                 <a href="{% url 'module' slug=course.slug order=next_module.order %}"
                    class="btn btn-outline-secondary">Следующий модуль <i class="bi bi-caret-right"></i></a>
             {% endif %}
-        </p>
+            </p>
+        </div>
     </div>
 {% endblock %}

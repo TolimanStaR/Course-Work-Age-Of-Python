@@ -5,7 +5,6 @@
 {% block title %}{% endblock %}
 
 {% block content %}
-    {% if contest.status != "WAIT" %}
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
@@ -33,24 +32,30 @@
                             <a class="nav-link active" href="{% url 'contest_participant_scoreboard' id=contest.id %}"> <i class="bi bi-people-fill"></i> Рейтинг</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'contest_description' id=contest.id %}"><i class="bi bi-question-diamond"></i> Положения</a>
+                            <a class="nav-link active" href="{% url 'contest_description' id=contest.id %}"><i
+                                    class="bi bi-question-diamond"></i> Положения</a>
+                        </li>
+                        <li class="nav-item">
+                            <b><a class="nav-link active" id="timer"></a></b>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
-        <br>
+    <br>
+    {% if contest.status != "WAIT" %}
         {% block contest_content %}
         {% endblock %}
     {% else %}
-        <p>Соревнование пока не началось</p>
+        <h3>Соревнование пока не началось</h3>
         {% if participant %}
         {% else %}
             <p>Чтобы принять участие, <a href="{% url 'contest_registration' id=contest.id %}">зарегистрируйтесь</a></p>
         {% endif %}
     {% endif %}
     <script type="text/javascript">
-        const interval = 1000;
+        let interval = 1000;
+
         function updateContestCondition() {
             $.ajax({
                 type: 'get',
@@ -58,12 +63,12 @@
                 data: {csrfmiddlewaretoken: getCookie('csrftoken')},
                 dataType: 'json',
                 success: function (data) {
-                    console.log(data);
-                    if(data['alert_action']===1) {
+                    $('#timer').text(data['timer']);
+                    if (data['alert_action'] === 1) {
                         alert('Соревнование началось');
                         document.location.reload();
                     }
-                    if(data['alert_action']===2) {
+                    if (data['alert_action'] === 2) {
                         alert('Соревнование закончилось');
                         document.location.reload();
                     }
@@ -91,6 +96,5 @@
             }
             return cookieValue;
         }
-
     </script>
 {% endblock %}

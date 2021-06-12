@@ -1,88 +1,213 @@
 {% extends 'index.html' %}
 
-{% block title %}Главная страница{% endblock %}
+{% load static %}
+
+{% block title %}Age Of Python{% endblock %}
 
 {% block content %}
-    <h3>Главная страница</h3>
-    <p>
-        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-        $x = $0
-        \[ x^n + y^n = z^n \]
-        In physics, the mass-energy equivalence is stated
-        by the equation $E=mc^2$, discovered in 1905 by Albert Einstein.
-        The mass-energy equivalence is described by the famous equation
+    <main class="flex-shrink-0">
+        <!-- Navigation-->
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class=" px-5">
+                <div class="row gx-5 align-items-center justify-content-center">
+                    <div class="col-lg-8 col-xl-7 col-xxl-6">
+                        <div class="my-5 text-center text-xl-start">
+                            <h1 class="display-5 fw-bolder text-white mb-2">Ваш инструмент для достижения успеха</h1>
+                            <p class="lead fw-normal text-white-50 mb-4">Если запастись терпением и проявить старание,
+                                то посеянные семена знания непременно дадут добрые всходы. Ученья корень горек, да плод
+                                сладок.
+                            </p>
+                            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
+                                <a class="btn btn-success btn-lg px-4 me-sm-3" href="#features">Поехали</a>
+                                <a class="btn btn-outline-light btn-lg px-4" href="
 
-        \[E=mc^2\]
-
-        discovered in 1905 by Albert Einstein.
-        In natural units ($c$ = 1), the formula expresses the identity
-
-        \begin{equation}
-        E=m
-        \end{equation}
-        \[cos (2\theta) = \cos^2 \theta - \sin^2 \theta \]
-        $\oint$
-        There are $\\$ $k_{n+1} = n^2 + k_n^2 - k_{n-1} $ simple equasion
-        n^{22}
-        $n^{22}$
-        $$ - b \pm \sqrt b^2 - 4ac \over 2a$$
-        $n < 10^9$
-    <pre><code style="">
-class Course(models.Model):
-owner = models.ForeignKey(to=User,
-                          on_delete=models.DO_NOTHING,
-                          related_name='own_courses',
-                          default=None)
-# owner of the channel->course
-
-channel = models.ForeignKey(to=Channel,
-                            on_delete=models.CASCADE,
-                            related_name='courses',
-                            null=True,
-                            default=None)
-# channel where course implemented
-
-title = models.CharField(max_length=150)
-# title of the course
-
-slug = models.SlugField(unique=True, max_length=100, default='')
-# course unique identifier in url
-
-description = models.TextField(default='', blank=True)
-# description at the course page
-
-theme = models.TextField(choices=CourseThemes.choices, default=CourseThemes.ABSTRACT)
-# course theme / tag
-
-show_course_in_channel_page = models.BooleanField(default=False)
-# should course be in channel main page
-
-created = models.DateTimeField(default=now, editable=False)
-# time of course creation
-
-preview_picture = models.ImageField(upload_to='course_preview_images/', blank=True)
-# preview image at the courses list
-
-main_picture = models.ImageField(upload_to='course_main_pictures/', blank=True)
-
-# picture at the course main page
-
-def get_theme(self):
-    d = dict()
-    for elem in CourseThemes.choices:
-        d[elem[0]] = elem[1]
-    return d[self.theme]
-
-###### students = models.ManyToManyField(to=User, related_name='courses', blank=True)
-
-# query of students at the course
-
-class Meta:
-    ordering = ('-created',)
-
-def __str__(self):
-    return self.title
-    </code></pre>
-    </p>
+                                        {% if user.is_authenticated %}{% url 'course_catalog' %}{% else %}{% url 'registration' %}{% endif %}">
+                                    {% if user.is_authenticated %}Начать учиться{% else %}Присоединиться{% endif %}</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5"
+                                                                                       src="{% static 'img/programmer1 (1) (1).jpg' %}"
+                                                                                       alt="..."/></div>
+                </div>
+            </div>
+        </header>
+        <!-- Features section-->
+        <section class="py-5" id="features">
+            <div class=" px-5 my-5">
+                <div class="row gx-5">
+                    <div class="col-lg-4 mb-5 mb-lg-0"><h2 class="fw-bolder mb-0">Лучший способ старта карьеры.</h2>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row gx-5 row-cols-1 row-cols-md-2">
+                            <div class="col mb-5 h-100">
+                                <div class="feature bg-success bg-gradient text-white rounded-3 mb-3"
+                                     style="padding: 2px"><i class="bi bi-laptop"></i></i></div>
+                                <h2 class="h5">Учитесь онлайн</h2>
+                                <p class="mb-0">Отслеживайте каналы любимых преподавателей и развивайтесь в интересной
+                                    области.</p>
+                            </div>
+                            <div class="col mb-5 h-100">
+                                <div class="feature bg-success bg-gradient text-white rounded-3 mb-3"
+                                     style="padding: 2px"><i
+                                        class="bi bi-pencil-square"></i></div>
+                                <h2 class="h5">Ведите свой канал</h2>
+                                <p class="mb-0">Создавайте захватывающий контент, выкладывайте и привлекайте новых
+                                    участников.</p>
+                            </div>
+                            <div class="col mb-5 mb-md-0 h-100">
+                                <div class="feature bg-success bg-gradient text-white rounded-3 mb-3"
+                                     style="padding: 2px"><i
+                                        class="bi bi-toggles2"></i></div>
+                                <h2 class="h5">Проводите соревнования</h2>
+                                <p class="mb-0">Увеличивайте интерес к своему каналу и устаивайте контесты по
+                                    программированию.</p>
+                            </div>
+                            <div class="col h-100">
+                                <div class="feature bg-success bg-gradient text-white rounded-3 mb-3"
+                                     style="padding: 2px"><i class="bi bi-card-list"></i></div>
+                                <h2 class="h5">Лёгкий старт</h2>
+                                <p class="mb-0">Используйте преимущества нашей платформы и начните создавать уже
+                                    сейчас.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Testimonial section-->
+        <div class="py-5 bg-light">
+            <div class=" px-5 my-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-10 col-xl-7">
+                        <div class="text-center">
+                            <div class="fs-4 mb-4 fst-italic">"Любой, кто перестает учиться, стареет, и не важно,
+                                сколько ему лет: двадцать или восемьдесят.
+                                Любой, кто продолжает учиться, остается молодым.
+                                Самая великая вещь в жизни - это сохранять свой разум молодым"
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <img class="rounded-circle me-3" src="{% static 'img/image (1) (1).jpg' %}"
+                                     alt="..."/>
+                                <div class="fw-bold">
+                                    Генри Форд
+                                    <span class="fw-bold text-primary mx-1">/</span>
+                                    Предприниматель
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Blog preview section-->
+        <section class="py-5">
+            <div class=" px-5 my-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-8 col-xl-6">
+                        <div class="text-center">
+                            <h2 class="fw-bolder">Следите за новостями</h2>
+                            <p class="lead fw-normal text-muted mb-5">Наша платформа развивается вместе с Вами. Будьте в
+                                курсе событий и читайте наш блог</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row gx-5">
+                    <div class="col-lg-4 mb-5">
+                        <div class="card h-100 shadow border-0">
+                            <img class="card-img-top" src="{% static 'img/team-programming (1).jpg' %}" alt="..."/>
+                            <div class="card-body p-4">
+                                <div class="badge bg-secondary bg-gradient rounded-pill mb-2">News</div>
+                                <a class="text-decoration-none link-dark stretched-link" href="#!"><h5
+                                        class="card-title mb-3">Соревнование уже в среду!</h5></a>
+                                <p class="card-text mb-0">Наше первое соревнование состоится в среду, 16 июня.
+                                    Начало в 18:30, 7 задач на два с половиной часа.</p>
+                            </div>
+                            <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
+                                <div class="d-flex align-items-end justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle me-3"
+                                             src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..."/>
+                                        <div class="small">
+                                            <div class="fw-bold">TolimanStaR</div>
+                                            <div class="text-muted">June 9, 2021 &middot; 6 min read</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-5">
+                        <div class="card h-100 shadow border-0">
+                            <img class="card-img-top" src="https://dummyimage.com/600x350/adb5bd/495057" alt="..."/>
+                            <div class="card-body p-4">
+                                <div class="badge bg-secondary bg-gradient rounded-pill mb-2">Media</div>
+                                <a class="text-decoration-none link-dark stretched-link" href="#!"><h5
+                                        class="card-title mb-3">Another blog post title</h5></a>
+                                <p class="card-text mb-0">This text is a bit longer to illustrate the adaptive height of
+                                    each card. Some quick example text to build on the card title and make up the bulk
+                                    of the card's content.</p>
+                            </div>
+                            <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
+                                <div class="d-flex align-items-end justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle me-3"
+                                             src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..."/>
+                                        <div class="small">
+                                            <div class="fw-bold">Josiah Barclay</div>
+                                            <div class="text-muted">March 23, 2021 &middot; 4 min read</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-5">
+                        <div class="card h-100 shadow border-0">
+                            <img class="card-img-top" src="https://dummyimage.com/600x350/6c757d/343a40" alt="..."/>
+                            <div class="card-body p-4">
+                                <div class="badge bg-secondary bg-gradient rounded-pill mb-2">News</div>
+                                <a class="text-decoration-none link-dark stretched-link" href="#!"><h5
+                                        class="card-title mb-3">The last blog post title is a little bit longer than the
+                                    others</h5></a>
+                                <p class="card-text mb-0">Some more quick example text to build on the card title and
+                                    make up the bulk of the card's content.</p>
+                            </div>
+                            <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
+                                <div class="d-flex align-items-end justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <img class="rounded-circle me-3"
+                                             src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..."/>
+                                        <div class="small">
+                                            <div class="fw-bold">Evelyn Martinez</div>
+                                            <div class="text-muted">April 2, 2021 &middot; 10 min read</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Call to action-->
+                <aside class="bg-success bg-gradient rounded-3 p-4 p-sm-5 mt-5">
+                    <div class="d-flex align-items-center justify-content-between flex-column flex-xl-row text-center text-xl-start">
+                        <div class="mb-4 mb-xl-0">
+                            <div class="fs-3 fw-bold text-white">Современный инструмент на вашей службе.</div>
+                            <div class="text-white-50">Регистрируйтесь и получите все преимущества платформы.</div>
+                        </div>
+                        <div class="ms-xl-4">
+                            <div class="input-group mb-2">
+                                {#                                <input class="form-control" type="text" placeholder="Email address..."#}
+                                {#                                       aria-label="Email address..." aria-describedby="button-newsletter"/>#}
+                                <a class="btn btn-outline-light" href="{% url 'registration' %}">Зарегистрироваться</a>
+                            </div>
+                            <div class="small text-white-50">Мы заботимся о ваших данных.
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
 {% endblock %}

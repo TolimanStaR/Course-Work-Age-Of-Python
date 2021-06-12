@@ -39,6 +39,7 @@
                                     управления каналом</a>
                             {% endif %}
                             <hr>
+                        {% if user.is_authenticated %}
                             {% if user not in channel.subscribers.all %}
                                 <form action="{% url 'channel_subscribe' slug=channel.slug %}" method="post">
                                     {% csrf_token %}
@@ -57,6 +58,9 @@
                                            role="button">
                                 </form>
                             {% endif %}
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Войдите, чтобы подписаться</a>
+                        {% endif %}
                         </div>
                     </div>
                 </div>
@@ -67,7 +71,7 @@
         <p>{{ channel.channel_description|linebreaks|safe }}</p>
         <div class="row gutters-sm">
             <div class="col-md-4 mb-3">
-                <div class="card">
+                <div class="">
                     <div class="card-body">
                         <div class="d-flex flex-column align-items-center text-center">
                             {#                            <img src="{{ user_obj.user_profile.profile_photo.url }}" alt="{{ user_obj.username }}"#}

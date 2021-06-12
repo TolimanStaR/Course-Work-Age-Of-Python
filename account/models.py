@@ -20,7 +20,7 @@ class UserProfile(models.Model):
     friends = models.ManyToManyField(to='UserProfile', blank=True, related_name='friends_list')
     university = models.TextField(default=University.OTHER, choices=University.choices)
     website = models.URLField(default='', blank=True)
-    address = models.CharField(default='-', max_length=50)
+    address = models.CharField(default='-', max_length=50, blank=True)
     github = models.CharField(max_length=100, default='', blank=True)
     twitter = models.CharField(max_length=100, default='', blank=True)
     inst = models.CharField(max_length=100, default='', blank=True)

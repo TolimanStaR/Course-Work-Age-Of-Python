@@ -2,8 +2,23 @@
 {% block title %}Каналы{% endblock %}
 {% block content %}
     <div>
-        <h3>Каналы</h3>
+        <h3>Каталог каналов</h3>
         <hr>
-
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for channel in object_list %}
+                <div class="col">
+                    <div class="card">
+                        <img src="{{ channel.preview_image.url }}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ channel.title }}</h5>
+                            <p class="card-text">{{ channel.channel_description|truncatechars:100 }}</p>
+                            <a href="{% url 'channel' slug=channel.slug %}" class="btn btn-primary">Перейти в канал</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Пока что каналов нет</p>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

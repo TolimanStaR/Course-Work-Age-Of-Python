@@ -17,7 +17,11 @@
 {#                        <p>{{ form.instance.right_answer|linebreaks|safe }}</p>#}
 {#                    {% endif %}#}
                     <p>Правильный ответ:</p>
-                    <input type="text" class="form-control classname" value="{{ form.instance.right_answer|safe }}" readonly aria-label="Disabled input example">
+{#                    <input type="text" class="form-control classname" value="{{ form.instance.right_answer|linebreaks }}" readonly aria-label="Disabled input example">#}
+                    <div class="card"><div class="card-body bg-light" style="max-height: 200px; overflow:auto;">
+                        {{ form.instance.right_answer|linebreaks }}
+                </div>
+                </div>
                     <hr>
                 {% endfor %}
             </table>

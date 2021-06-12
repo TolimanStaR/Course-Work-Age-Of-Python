@@ -124,7 +124,7 @@ urlpatterns = [
          CourseTaskUpdateView.as_view(),
          name='update_course_task'),
 
-    path('course/<slug:slug>/create_task/confirm/',
+    path('course/<slug:slug>/create_task_confirm/',
          CourseTaskCreateFormHandle.as_view(),
          name='course_task_create_success'),
 
@@ -291,4 +291,12 @@ urlpatterns = [
     path('courses/',
          CourseListViewMain.as_view(),
          name='course_catalog', ),
+
+    path('channels/',
+         ChannelListViewMain.as_view(),
+         name='channel_catalog', ),
+
+    path('contests/',
+         ContestListViewMain.as_view(),
+         name='contest_catalog', ),
 ]

@@ -5,3 +5,7 @@ from django.contrib import messages
 
 class MainPage(TemplateView):
     template_name = 'main_page.html'
+
+
+class Politica(TemplateView):
+    template_name = 'politica.html'

@@ -44,11 +44,16 @@
         </table>
         <script type="text/javascript">
             function copyToClipboard(element) {
-                var $temp = $("<input>");
-                $("body").append($temp);
-                $temp.val($(element).text()).select();
+                var tmp = document.createElement("textarea");
+                tmp.value = $(element).html().replaceAll('<br>', '\n');
+                tmp.style.height = "0";
+                tmp.style.overflow = "hidden";
+                tmp.style.position = "fixed";
+                document.body.appendChild(tmp);
+                tmp.focus();
+                tmp.select();
                 document.execCommand("copy");
-                $temp.remove();
+                document.body.removeChild(tmp);
             }
         </script>
     </div>

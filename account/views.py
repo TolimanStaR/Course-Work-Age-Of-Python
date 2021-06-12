@@ -32,7 +32,6 @@ class Profile(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         a = get_object_or_404(User, username=self.kwargs.get('username'))
-        print(f'{a}\n\n\n\n\n\n\n\n')
         return super().dispatch(request, **kwargs)
 
     def get_object(self, queryset=None):
@@ -201,11 +200,15 @@ class EditProfile(View, LoginRequiredMixin):
         profile_form = UserProfileEditForm(instance=request.user.user_profile,
                                            data=request.POST,
                                            files=request.FILES)
+        print(user_form.errors, profile_form.errors)
         if user_form.is_valid() & profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request, 'Данные обновлены')
         else:
+            m = 'Ошибка при обновлении профиля'
+            if 'Enter a valid phone number' in profile_form.errors:
+                m += '\nВведите корректный номер телефона'
             messages.error(request, 'Ошибка при обновлении профиля')
         return HttpResponseRedirect(self.request.path_info)
 

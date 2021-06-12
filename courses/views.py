@@ -316,6 +316,7 @@ class CourseUpdateView(UpdateView, LoginRequiredMixin):
             raise Http404
 
     def form_valid(self, form):
+        form.save()
         messages.success(self.request, 'Данные о курсе успешно обновлены')
         return super().form_valid(form)
 
@@ -1174,17 +1175,22 @@ class ContestParticipantMixin(TemplateView):
                     s.add(par.participant.user.username)
 
                 a[i].all_try_count = len(s)
-
+                print()
                 if ContestSolution.objects.filter(
                         participant=p,
+                        task_id=t.id,
                 ).count() > 0:
                     a[i].try_count = -1
                     if ContestSolution.objects.filter(
                             participant=p,
                             verdict=Verdict.CORRECT_SOLUTION,
+                        task_id=t.id,
                     ).count() > 0:
+
                         a[i].try_count = 1
             context['table_task'] = a
+            for x in a:
+                print(x)
         except ObjectDoesNotExist:
             context['participant'] = None
         return context
@@ -1472,6 +1478,26 @@ def update_contest_solutions(request, id):
             self.value = None
             self.status = None
 
+    color = (
+        '#FFFF00',
+        '#EEFF00',
+        '#DDFF00',
+        '#CCFF00',
+        '#BBFF00',
+        '#AAFF00',
+        '#99FF00',
+        '#88FF00',
+        '#77FF00',
+        '#66FF00',
+        '#55FF00',
+        '#44FF00',
+        '#33FF00',
+        '#22FF00',
+        '#11FF00',
+        '#00FF00',
+        '#00FF11',
+    )
+
     contest = Contest.objects.get(id=id)
     user = request.user
     solutions = ContestSolution.objects.filter(
@@ -1486,14 +1512,17 @@ def update_contest_solutions(request, id):
     table = [[0, 0, 0, 0, 0] for _ in range(n)]
     for i, s in enumerate(solutions):
         cur_test = s.cur_test
-        table[i][1] = f'{int((cur_test / test_count) * 100)}'
+        percent = f'{int((cur_test / s.task.tests.count()) * 100)}'
+        table[i][1] = percent
+        print(test_count, cur_test)
+        cur_color = color[(len(color) - 1) * int(percent) // 100]
         table[i][2] = s.verdict_text
         table[i][4] = s.status
         if s.status == Status.QUEUED:
             table[i][3] = 'В очереди'
         if s.status == Status.IN_PROGRESS:
             table[i][3] = f'<div class="progress" style="width: 120px">\
-                                <div class="progress-bar" role="progressbar" style="width: {table[i][1]}%; "\
+                                <div class="progress-bar" role="progressbar" style="width: {table[i][1]}%; background-color: {cur_color}"\
                                      aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>\
                             </div>'
         elif s.status == Status.WAIT_FOR_CHECK:
@@ -1749,7 +1778,7 @@ class ContestStudentListView(ListView):
 
 class ChannelListViewMain(ListView):
     model = Channel
-    template_name = ''
+    template_name = 'channel/channel_list.html'
 
 
 class CourseListViewMain(ListView):
@@ -1759,4 +1788,4 @@ class CourseListViewMain(ListView):
 
 class ContestListViewMain(ListView):
     model = Contest
-    template_name = ''
+    template_name = 'contest/contest_list.html'

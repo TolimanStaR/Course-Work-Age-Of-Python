@@ -11,7 +11,9 @@
             <form action="{% url 'registration_submit' %}" method="post">
                 {% csrf_token %}
                 {{ form|crispy }}
-                <p><input type="submit" value="Зарегистрироваться" class="btn-success btn"/></p>
+                <p><input type="checkbox"> Нажимая "Зарегистрироваться", вы даете согласие на обработку своих персональных данных</p>
+                <p><a href="{% url 'politica' %}">Политика конфиденциальности</a></p>
+                <p><input type="submit" value="Зарегистрироваться" class="btn-success btn" required="required" /></p>
                 <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
             </form>
         </div>

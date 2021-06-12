@@ -62,3 +62,7 @@ class ContestParticipantAdmin(admin.ModelAdmin):
 @admin.register(ContestSolution)
 class ContestSolutionAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    pass

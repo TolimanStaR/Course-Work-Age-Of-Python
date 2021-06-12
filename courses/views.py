@@ -1512,7 +1512,8 @@ def update_contest_solutions(request, id):
     table = [[0, 0, 0, 0, 0] for _ in range(n)]
     for i, s in enumerate(solutions):
         cur_test = s.cur_test
-        percent = f'{int((cur_test / s.task.tests.count()) * 100)}'
+        t_c = s.task.tests.count()
+        percent = f'{int((cur_test / t_c) * 100)}'
         table[i][1] = percent
         print(test_count, cur_test)
         cur_color = color[(len(color) - 1) * int(percent) // 100]

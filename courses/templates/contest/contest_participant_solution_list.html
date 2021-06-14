@@ -59,10 +59,8 @@
                 data: {},
                 dataType: 'json',
                 success: function (data) {
-                    console.log(data['table'][0]);
                     for (let i = 0; i < data['table'].length; ++i) {
                         let s = $('#verdict_' + i);
-                        console.log(s.text());
                         if (data['table'][i][4] !== 'WAIT') {
                             $('#status_' + i).html(data['table'][i][3]);
                         }

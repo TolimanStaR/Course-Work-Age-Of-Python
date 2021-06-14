@@ -1401,7 +1401,8 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
                     task=tasks[i],
                 )
                 stats[i].try_count = len(solutions)
-                stats[i].points = max([s.points for s in solutions] + [-1])
+                stats[i].points = max([s.points for s in solutions] + [0])
+                print([s.points for s in solutions])
                 points += stats[i].points
                 stats[i].is_solved = True if Verdict.CORRECT_SOLUTION in [s.verdict for s in solutions] else False
                 if stats[i].is_solved:
@@ -1415,6 +1416,7 @@ class ContestParticipantScoreboardView(ContestParticipantMixin):
             table.append(user)
         table.sort(key=lambda x: x.task_solved, reverse=True)
         context['table'] = table
+        print(table[0].points)
         return context
 
 
@@ -1515,7 +1517,6 @@ def update_contest_solutions(request, id):
         t_c = s.task.tests.count()
         percent = f'{int((cur_test / t_c) * 100)}'
         table[i][1] = percent
-        print(test_count, cur_test)
         cur_color = color[(len(color) - 1) * int(percent) // 100]
         table[i][2] = s.verdict_text
         table[i][4] = s.status

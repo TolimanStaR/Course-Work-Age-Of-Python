@@ -294,6 +294,9 @@ class CourseTask(AbstractTask):
     class Meta:
         ordering = ('difficulty',)
 
+    def __str__(self):
+        return self.title
+
 
 class CourseSolution(Solution):
     course = models.ForeignKey(to=Course,

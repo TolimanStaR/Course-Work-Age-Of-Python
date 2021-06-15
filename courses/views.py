@@ -1145,7 +1145,7 @@ class ContestParticipantMixin(TemplateView):
                 contest=self.get_contest(),
                 user=self.request.user
             )
-        except ObjectDoesNotExist:
+        except:
             return None
 
     def get_context_data(self, **kwargs):
